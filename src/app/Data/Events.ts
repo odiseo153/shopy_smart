@@ -1,0 +1,37 @@
+import { faUsers, faMicrophone, faUtensils, faBriefcase, faGlassCheers, faChalkboardTeacher,  faWalking, faHeart, faChurch, faAward, faTshirt, faUmbrellaBeach, faHome, faPlane, faFutbol, faHiking, faFilm, faMoon, faUserTie, faTree, faStar, faSun, faRing, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { Evento } from '../Interfaces/Evento';
+
+export const Eventos:Evento[] = [
+    { nombre: 'reunion', icono: faUsers },
+    { nombre: 'entrevista', icono: faMicrophone },
+    { nombre: 'cenas formales', icono: faUtensils },
+    { nombre: 'cenas de negocios', icono: faBriefcase },
+    { nombre: 'fiestas', icono: faGlassCheers },
+    { nombre: 'conferencias', icono: faChalkboardTeacher },
+    { nombre: 'presentaciones', icono: faUsers },
+    { nombre: 'salidas', icono: faWalking },
+    { nombre: 'citas', icono: faHeart },
+    { nombre: 'misa', icono: faChurch },
+    { nombre: 'ceremonia', icono: faAward },
+    { nombre: 'informales', icono: faTshirt },
+    { nombre: 'casual', icono: faTshirt },
+    { nombre: 'playa', icono: faUmbrellaBeach },
+    { nombre: 'casa', icono: faHome },
+    { nombre: 'vacaciones', icono: faPlane },
+    { nombre: 'actividad deportiva', icono: faFutbol },
+    { nombre: 'paseos', icono: faHiking },
+    { nombre: 'cine', icono: faFilm },
+    { nombre: 'reuniones casuales', icono: faUsers },
+    { nombre: 'salida nocturna', icono: faMoon },
+    { nombre: 'evento fomal', icono: faUserTie },
+    { nombre: 'reunion al aire libre', icono: faTree },
+    { nombre: 'ocasion especial', icono: faStar },
+    { nombre: 'reuniones', icono: faUsers },
+    { nombre: 'evento de verano', icono: faSun },
+    { nombre: 'trabajo', icono: faBriefcase },
+    { nombre: 'paseo', icono: faWalking },
+    { nombre: 'ocasion formal', icono: faUserTie },
+    { nombre: 'boda', icono: faRing },
+    { nombre: 'cena formal', icono: faUtensils },
+    { nombre: 'eventos de gala', icono: faCrown }
+];
