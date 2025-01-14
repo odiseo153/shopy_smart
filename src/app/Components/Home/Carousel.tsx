@@ -6,10 +6,10 @@ import {useState,useEffect} from 'react';
 
 export const Carousel = () => {
     const images = [
-      "https://picsum.photos/800/400?random=76",
-      "https://picsum.photos/800/400?random=2", 
-      "https://picsum.photos/800/400?random=3",
-      "https://picsum.photos/800/400?random=4"
+      "https://media.istockphoto.com/id/1412353022/photo/empty-aisle-at-a-supermarket.jpg?s=612x612&w=0&k=20&c=lua6Ayl1iyoOndHTXEWoolyh1xV9HTROcl6we_o-HRc=",
+      "https://t4.ftcdn.net/jpg/06/03/64/17/360_F_603641752_KZXQVK9LI6XD4KORIEZvwAUm0F2w8Ydj.jpg", 
+      "https://png.pngtree.com/thumb_back/fh260/background/20240409/pngtree-empty-shopping-basket-on-wood-table-over-grocery-store-supermarket-blur-image_15653639.jpg",
+      "https://i.pinimg.com/736x/ce/eb/3d/ceeb3d02ced53a1a052302e37784b8a1.jpg  "
     ];
 
     const [currentImage, setCurrentImage] = useState(0);

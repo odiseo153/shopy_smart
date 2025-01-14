@@ -6,14 +6,14 @@ const scraper = new ProductScraper(); // Instancia de la clase
 // /app/api/search/[search]/route.ts
 export async function GET(
   request: Request,
-  { params }: { params: { search: string } }
+  context:any
 ) {
-  const search = params.search;
+  const {search} = context.params;
 
   if (!search) {
     return NextResponse.json(
       { error: "Search term is missing" },
-      { status: 400 }
+      { status: 400 } 
     );
   }
 
