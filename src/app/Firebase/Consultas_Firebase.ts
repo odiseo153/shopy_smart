@@ -12,7 +12,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 interface Consultas {
   login: () => Promise<boolean>;
   getByEmail: ( queryEmail: string) => Promise<boolean>;
-  addWithDate: (newEmail: string) => Promise<boolean>;
+  add: (newEmail: string) => Promise<boolean>;
 }
 
 
