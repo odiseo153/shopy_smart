@@ -26,6 +26,11 @@ export async function GET(
       ...(await scraper.getEbayProducts(search)),
       ...(await scraper.getProductsGearbest(search)),
        ...(await scraper.getProductsRomwe(search)),
+
+       ...(await scraper.getNikeProducts(search)),
+       ...(await scraper.getAsosProducts(search)),
+       ...(await scraper.getBestBuyProducts(search)),
+       ...(await scraper.getPatagoniaProducts(search)),
      //  ...(await scraper.getWalmartProducts(search)),
     ];
     

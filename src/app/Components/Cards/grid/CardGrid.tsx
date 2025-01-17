@@ -8,76 +8,10 @@ interface ProductProps {
 }
 
 export const CardGrid: React.FC<ProductProps> = ({ product }) => {
-  
-  
-  const Styles = {
-    amazon: {
-      cardBg: "bg-green-500",
-      hoverBg: "hover:bg-green-100",
-      borderColor: "border-green-300",
-      cardDark: "dark:bg-green-900",
-      priceColor: "text-green-700",
-      iconBg: "bg-green-100 dark:bg-green-800",
-    },
-    aliexpress: {
-      cardBg: "bg-red-500",
-      hoverBg: "hover:bg-red-100",
-      borderColor: "border-red-300",
-      cardDark: "dark:bg-red-900",
-      priceColor: "text-red-700",
-      iconBg: "bg-red-100 dark:bg-red-800",
-    },
-    ebay: {
-      cardBg: "bg-blue-500",
-      hoverBg: "hover:bg-blue-100",
-      borderColor: "border-blue-300",
-      cardDark: "dark:bg-blue-900",
-      priceColor: "text-blue-700",
-      iconBg: "bg-blue-100 dark:bg-blue-800",
-    },
-    ikea: {
-      cardBg: "bg-yellow-500",
-      hoverBg: "hover:bg-yellow-100",
-      borderColor: "border-yellow-300",
-      cardDark: "dark:bg-yellow-900",
-      priceColor: "text-yellow-700",
-      iconBg: "bg-yellow-100 dark:bg-yellow-800",
-    },
-    romwe: {
-      cardBg: "bg-pink-500",
-      hoverBg: "hover:bg-pink-100",
-      borderColor: "border-pink-300",
-      cardDark: "dark:bg-pink-900",
-      priceColor: "text-pink-700",
-      iconBg: "bg-pink-100 dark:bg-pink-800",
-    },
-    gearbest: {
-      cardBg: "bg-purple-500",
-      hoverBg: "hover:bg-purple-100",
-      borderColor: "border-purple-300",
-      cardDark: "dark:bg-purple-900",
-      priceColor: "text-purple-700",
-      iconBg: "bg-purple-100 dark:bg-purple-800",
-    },
-    default: {
-      cardBg: "bg-gray-500",
-      hoverBg: "hover:bg-gray-100",
-      borderColor: "border-gray-200",
-      cardDark: "dark:bg-gray-800",
-      priceColor: "text-gray-900",
-      iconBg: "bg-gray-200 dark:bg-gray-700",
-    },
-  };
-  
-
-  const brandStyles = Styles[product.brand?.toLowerCase() as keyof typeof Styles] || Styles.default;
-
   return (
-    <div
-      className={`max-w-sm rounded-lg border ${brandStyles.borderColor} ${brandStyles.cardBg} p-6 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl ${brandStyles.cardDark}`}
-    >
-      {/* Imagen del producto */}
-      <div className="relative h-56 w-full overflow-hidden rounded-lg ">
+    <div className="max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+      {/* Product Image */}
+      <div className="relative h-56 w-full overflow-hidden rounded-lg">
         <Link href={product?.product_url} target="_blank" rel="noopener noreferrer">
           <img
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
@@ -88,14 +22,12 @@ export const CardGrid: React.FC<ProductProps> = ({ product }) => {
         </Link>
       </div>
 
-      {/* Información del producto */}
+      {/* Product Information */}
       <div className="pt-4">
-        {/* Marca e icono */}
+        {/* Brand and Icon */}
         <div className="flex items-center justify-between mb-3">
           <span className="flex items-center gap-3">
-            <div
-              className={`h-10 w-10 rounded-full flex items-center justify-center ${brandStyles.iconBg}`}
-            >
+            <div className="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200">
               <img
                 src={product?.icon}
                 className="h-6 w-6 object-contain"
@@ -103,23 +35,23 @@ export const CardGrid: React.FC<ProductProps> = ({ product }) => {
                 loading="lazy"
               />
             </div>
-            <span className="text-bold font-medium  ">
+            <span className="font-medium text-gray-800">
               {product?.brand}
             </span>
           </span>
         </div>
 
-        {/* Título del producto */}
+        {/* Product Title */}
         <Link
           href={product?.product_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block line-clamp-2 min-h-[3rem] font-semibold leading-tight text-gray-900 hover:underline dark:text-white"
+          className="block line-clamp-2 min-h-[3rem] font-semibold leading-tight text-gray-900 hover:underline"
         >
           {product?.product_title}
         </Link>
 
-        {/* Calificación */}
+        {/* Rating */}
         <div className="mt-2 flex items-center">
           {[...Array(5)].map((_, i) => (
             <FontAwesomeIcon
@@ -130,11 +62,9 @@ export const CardGrid: React.FC<ProductProps> = ({ product }) => {
           ))}
         </div>
 
-        {/* Precio */}
+        {/* Price */}
         <div className="mt-4 flex items-center justify-between">
-          <span
-            className={`text-lg font-bold  dark:text-dark`}
-          >
+          <span className="text-lg font-bold text-gray-900">
             {product?.product_price}
           </span>
         </div>

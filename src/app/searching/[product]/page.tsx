@@ -17,6 +17,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("best-match");
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState("all");
 
   const searchParams = useParams(); // Obtén los parámetros de consulta
   const query = searchParams.product as string;
@@ -46,10 +47,12 @@ export default function Page() {
   }, [query]);
 
   // Filter logic
+  const cleanPrice = (price: string = "") =>
+    parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
+
+
   const filterProducts = (products: Product[], filterType: string) => {
     if (!products?.length) return [];
-    const cleanPrice = (price: string = "") =>
-      parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
 
     const sortedProducts = {
       "price-low": [...products].sort(
@@ -69,12 +72,68 @@ export default function Page() {
     return sortedProducts[filterType as keyof typeof sortedProducts] || products;
   };
 
-  const filteredProducts =
-    platformFilter === "all"
-      ? products
-      : products.filter(
-          (product) => product.brand.toLowerCase() === platformFilter
-        );
+
+  const agruparPorRangos = (preciosArray: string[], cantidadRangos: number) => {
+    const precios = preciosArray.map(precio => cleanPrice(precio));
+  
+    if (cantidadRangos <= 0) {
+      throw new Error("La cantidad de rangos debe ser mayor a 0.");
+    }
+  
+    const maxPrecio = Math.max(...precios);
+    const minPrecio = Math.min(...precios);
+    const rangoTamano = Math.ceil((maxPrecio - minPrecio) / cantidadRangos);
+  
+    let rangos: string[] = [];
+  
+    for (let i = 0; i < cantidadRangos; i++) {
+      const inicioRango = minPrecio + i * rangoTamano;
+      const finRango = inicioRango + rangoTamano - 1;
+      const claveRango = `${inicioRango.toFixed(0)}-${finRango.toFixed(0)}`;
+      
+      rangos.push(claveRango);
+    }
+  
+    return rangos;
+  };
+  
+
+
+  const preciosRangos = agruparPorRangos(products.map(product => product.product_price), 6)
+
+
+  const filteredProducts = () => {
+    let productsFilter = products;
+  
+    const cleanedPrice = (priceRange: string) => {
+      const [min, max] = priceRange
+        .replace("$", "")
+        .split("-")
+        .map((price) => parseFloat(price.trim()));
+      return { min, max };
+    };
+  
+    const applyPlatformFilter = (product: Product) => {
+      return platformFilter === "all" || product.brand.toLowerCase() === platformFilter;
+    };
+  
+    const applyPriceFilter = (product: Product) => {
+      if (priceFilter === "all") return true;
+      const { min: minFilter, max: maxFilter } = cleanedPrice(priceFilter);
+      const { min: productMin, max: productMax } = cleanedPrice(product.product_price);
+      return productMin >= minFilter && productMax <= maxFilter;
+    };
+  
+    productsFilter = products.filter((product) => 
+      applyPlatformFilter(product) && applyPriceFilter(product)
+    );
+
+    console.log(productsFilter);
+  
+    return productsFilter;
+  };
+  
+  
 
   const uniqueBrands = Array.from(
     new Set(products.map((product) => product.brand.toLowerCase()))
@@ -100,7 +159,16 @@ export default function Page() {
         </SortBar>
       </div>
       <div className="flex flex-col lg:flex-row">
-        <Filters onPlatformChange={setPlatformFilter} options={uniqueBrands} />
+        {products.length &&
+
+        <Filters 
+        onPlatformChange={setPlatformFilter} 
+        onPriceChange={setPriceFilter} 
+        options={uniqueBrands}
+        prices={preciosRangos} 
+        />
+      }
+
         <main className="container mx-auto py-6">
           {isLoading && <Loading />}
           {!isLoading && !products.length && (
@@ -113,7 +181,7 @@ export default function Page() {
                 : "p-2 space-y-4"
             }
           >
-            {filterProducts(filteredProducts, filterType).map((product, i) =>
+            {filterProducts(filteredProducts(), filterType).map((product, i) =>
               view === "grid" ? (
                 <CardGrid key={i} product={product} />
               ) : (

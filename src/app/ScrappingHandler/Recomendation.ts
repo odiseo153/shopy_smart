@@ -49,6 +49,10 @@ export class RecommendationScraper {
          ...(await this.productScraper.getProductsGearbest(search)),
           ...(await this.productScraper.getProductsRomwe(search)),
           ...(await this.productScraper.getWalmartProducts(search)),
+          ...(await this.productScraper.getAsosProducts(search)),
+          ...(await this.productScraper.getBestBuyProducts(search)),
+          ...(await this.productScraper.getPatagoniaProducts(search)),
+          ...(await this.productScraper.getNikeProducts(search)),
        ];
 
       // Combinar todas las recomendaciones en una sola lista

@@ -11,6 +11,7 @@ const API_KEY_GEMINI = process.env.API_KEY_GEMINI;
 class ProductScraper {
   private headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    'Accept-Language': 'en-US;q=0.5',
   };
 
   async getEbayProducts(search: string): Promise<Product[]> {
@@ -75,31 +76,6 @@ class ProductScraper {
     return products;
   }
 
-  async getAmazonProducts(query: string): Promise<Product[] | null> {
-    const url = 'https://real-time-amazon-data.p.rapidapi.com/search';
-    const params = {
-      query,
-      page: '7',
-      country: 'US',
-      sort_by: 'RELEVANCE',
-      product_condition: 'ALL',
-      is_prime: 'false',
-      deals_and_discounts: 'NONE',
-    };
-
-    const headers = {
-      'x-rapidapi-key': 'f80d59416bmshba4d1c3787cc46ep101db5jsndb95bb993bc7',
-      'x-rapidapi-host': 'real-time-amazon-data.p.rapidapi.com',
-    };
-
-    try {
-      const response = await axios.get(url, { headers, params });
-      return response.data?.data?.products || null;
-    } catch (e) {
-      console.error(`Error fetching Amazon products: ${e}`);
-      return null;
-    }
-  }
 
   async getAliExpressProducts(search: string): Promise<Product[]> {
     const url = `https://www.aliexpress.us/w/wholesale-${search}.html?spm=a2g0o.home.search.0`;
@@ -167,7 +143,6 @@ class ProductScraper {
         });
       });
 
-      console.log(products);
       return products;
     } catch (error) {
       console.error(`Error en la solicitud: ${error}`);
@@ -213,13 +188,204 @@ class ProductScraper {
         });
       });
 
-      console.log(products);
       return products;
     } catch (error) {
       console.error(`Error en la solicitud: ${error}`);
       return [];
     }
   }
+
+
+
+async getBestBuyProducts(search: string): Promise<Product[]> {
+  const url = `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys`;
+
+  try {
+    const response = await axios.get(url, { headers: this.headers });
+
+    if (response.status !== 200) {
+      console.error(`Error al hacer la solicitud: ${response.status}`);
+      return [];
+    }
+
+    const $ = cheerio.load(response.data);
+    const products: Product[] = [];
+
+    $('li.sku-item').each((_, element) => {
+      const title = $(element).find('h4.sku-title').text().trim();
+      const price = $(element).find('span[aria-hidden="true"]').text().trim();
+      const link = $(element).find('a').attr('href');
+      const image = $(element).find('img.product-image').attr('src');
+
+      products.push({
+        product_title: title || 'N/A',
+        product_price: price || 'N/A',
+        product_url: link ? `https://www.bestbuy.com${link}` : 'N/A',
+        brand: 'bestbuy',
+        icon: 'https://cdn.dribbble.com/users/1399110/screenshots/15908208/best_buy_refresh.png',
+        product_photo: image || 'N/A',
+      });
+    });
+
+    return products;
+  } catch (error) {
+    console.error(`Error en la solicitud: ${error}`);
+    return [];
+  }
+}
+
+
+async getAsosProducts(search:string): Promise<Product[]> {
+  const url = `https://www.asos.com/search/?q=${search}`;
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+  };
+
+  try {
+    const response = await axios.get(url, { headers });
+
+    if (response.status !== 200) {
+      console.error(`Error al hacer la solicitud: ${response.status}`);
+      return [];
+    }
+
+    const $ = cheerio.load(response.data);
+    const products: Product[] = [];
+
+    $('a.productLink_KM4PI').each((_, element) => {
+      try {
+        const productUrl = $(element).attr('href') || 'N/A';
+        const productImage = $(element).find('img').attr('src') || 'N/A';
+        const productName = $(element)
+          .find('p.productDescription_sryaw')
+          .text()
+          .trim() || 'N/A';
+
+        const originalPrice = $(element)
+          .find('span.originalPrice_jEWt1')
+          .text()
+          .trim() || 'N/A';
+        const salePrice = $(element)
+          .find('span.saleAmount_C4AGB')
+          .text()
+          .trim() || 'N/A';
+        const discount = $(element)
+          .find('div.productDeal_RiYVs')
+          .text()
+          .trim() || 'N/A';
+
+        products.push({
+          product_title: productName,
+          product_price: salePrice || originalPrice,
+          product_url: productUrl.startsWith('http') ? productUrl : `https://www.asos.com${productUrl}`,
+          product_photo: productImage,
+          product_original_price: originalPrice,
+          brand: 'asos',
+          icon: 'https://e7.pngegg.com/pngimages/510/48/png-clipart-asos-com-fashion-brand-clothing-online-shopping-others-fashion-logo-thumbnail.png',
+        });
+      } catch (error) {
+        console.error(`Error procesando un producto: ${error}`);
+      }
+    });
+
+    return products;
+  } catch (error) {
+    console.error(`Error en la solicitud: ${error}`);
+    return [];
+  }
+}
+
+async getNikeProducts(search: string): Promise<Product[]> {
+  const url = `https://www.nike.com/es/w?q=${search}&vst=${search}`;
+  const headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  };
+
+  try {
+      const response = await axios.get(url, { headers });
+
+      if (response.status !== 200) {
+          console.error(`Error al hacer la solicitud: ${response.status}`);
+          return [];
+      }
+
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      $('div.product-card__body').each((_, item) => {
+          try {
+              const productName = $(item).find('div.product-card__title').text().trim() || 'N/A';
+              const productUrl = $(item).find('a.product-card__link-overlay').attr('href') || 'N/A';
+              const productImage = $(item).find('img.product-card__hero-image').attr('src') || 'N/A';
+              
+              const currentPrice = $(item).find('div.product-price.is--current-price').text().trim() || 'N/A';
+              const originalPrice = $(item).find('div.product-price.es__styling.is--striked-out').text().trim() || 'N/A';
+              
+              products.push({
+                  product_title: productName,
+                  product_price: currentPrice || originalPrice,
+                  product_url: productUrl.startsWith('http') ? productUrl : `https://www.nike.com${productUrl}`,
+                  product_photo: productImage,
+                  product_original_price: originalPrice,
+                  brand: 'nike',
+                  icon: 'https://cdn4.iconfinder.com/data/icons/flat-brand-logo-2/512/nike-512.png'
+              });
+          } catch (error) {
+              console.error(`Error procesando un producto: ${error}`);
+          }
+      });
+
+      return products;
+  } catch (error) {
+      console.error(`Error en la solicitud: ${error}`);
+      return [];
+  }
+}
+
+async getPatagoniaProducts(search: string): Promise<Product[]> {
+  const url = `https://www.patagonia.com/search/?q=${search}`;
+  const headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  };
+
+  try {
+      const response = await axios.get(url, { headers });
+
+      if (response.status !== 200) {
+          console.error(`Error al hacer la solicitud: ${response.status}`);
+          return [];
+      }
+
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      $('div.product-tile__content').each((_, container) => {
+          try {
+              const productName = $(container).find('p.product-tile__name').text().trim() || 'Nombre no disponible';
+              const productPrice = $(container).find('span.value').text().trim() || 'Precio no disponible';
+              const productImageUrl = $(container).find('meta').attr('content')?.trim() || 'URL de imagen no disponible';
+              const productLink = $(container).find('a').attr('href')?.trim() || 'Enlace no disponible';
+
+              products.push({
+                  product_title: productName,
+                  product_price: productPrice,
+                  product_url: productLink.startsWith('http') ? productLink : `https://www.patagonia.com${productLink}`,
+                  product_photo: productImageUrl,
+                  brand: 'patagonia',
+                  icon: 'https://i.pinimg.com/736x/5e/5d/f8/5e5df87c306b242fc92186f2dabc892b.jpg',
+              });
+          } catch (error) {
+              console.error(`Error procesando un producto: ${error}`);
+          }
+      });
+ 
+      return products;
+  } catch (error) {
+      console.error(`Error en la solicitud: ${error}`);
+      return [];
+  }
+}
 
 }
 

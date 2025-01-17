@@ -8,6 +8,7 @@ import RecommendedProductsSection from '../Components/Home/RecommendedProductSec
 import TrendingNowSection from '../Components/Home/TrendingNowSection';
 import PromotionsSection from '../Components/Home/PromotionsSection';
 import Footer from '../Components/Home/Footer';
+import Offers from '../Components/Home/Offers';
 
 
 
@@ -28,6 +29,7 @@ export default function Page() {
         </section>
 
         {/* Categories */}
+        <Offers />
         <CategoriesSection />
 
         {/* Recommended Products */}
@@ -41,7 +43,6 @@ export default function Page() {
       </main>
 
       {/* Footer */}
-      <Footer />
     </div>
   );
 }
