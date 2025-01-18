@@ -35,7 +35,7 @@ export async function GET(
      //  ...(await scraper.getWalmartProducts(search)),
     ];
     
-    const allCategoryData = await categoryHandler.getProductsByCategory(search);
+  //  const allCategoryData = await categoryHandler.getProductsByCategory(search);
 
     return NextResponse.json({ respuesta: allData });
   } catch (error) {

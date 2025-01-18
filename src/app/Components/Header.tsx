@@ -76,14 +76,15 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Enlaces y Menú de usuario */}
         <div className="flex items-center space-x-4 sm:space-x-6 mt-4 sm:mt-0">
+        {/* Enlaces y Menú de usuario 
           <Link
             href="/recomendation"
             className="text-gray-800 hover:text-green-500 font-medium transition text-sm sm:text-base"
           >
             Recomendaciones
           </Link>
+          */}
 
           {/* Menú de usuario */}
           <div className="relative">
