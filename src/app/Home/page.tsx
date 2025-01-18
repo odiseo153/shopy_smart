@@ -1,14 +1,14 @@
 'use client'
 
 import Header from '../Components/Header';
-import NewsletterBubble from '../Components/NewsletterBubble';
 import {Carousel} from '../Components/Home/Carousel';
 import CategoriesSection from '../Components/Home/CategoriesSection';
 import RecommendedProductsSection from '../Components/Home/RecommendedProductSection';
-import TrendingNowSection from '../Components/Home/TrendingNowSection';
+import PlatformsSection from '../Components/Home/PlatformsSection';
 import PromotionsSection from '../Components/Home/PromotionsSection';
 import Footer from '../Components/Home/Footer';
 import Offers from '../Components/Home/Offers';
+import { Bubble } from '../Components/Bubbles/Bubble';
 
 
 
@@ -18,7 +18,7 @@ export default function Page() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <Header />
-      <NewsletterBubble />
+      <Bubble />
 
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
@@ -36,7 +36,7 @@ export default function Page() {
         <RecommendedProductsSection />
 
         {/* Trending Now */}
-        <TrendingNowSection />
+        <PlatformsSection />
 
         {/* Promotions */}
         <PromotionsSection />

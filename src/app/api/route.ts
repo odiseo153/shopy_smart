@@ -1,7 +1,7 @@
-import ProductScraper from "@/app/ScrappingHandler/ApiHandler";
+import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
 import {  NextResponse } from 'next/server';
 
-const scraper = new ProductScraper(); // Instancia de la clase
+const scraper = new ProductsHandler(); // Instancia de la clase
 
 export  async function GET() {
  return NextResponse.json({ products: await scraper.getEbayProducts('iphone') }, {

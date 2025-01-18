@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faStar } from "@fortawesome/free-solid-svg-icons";
-import { AliExpressProduct, AmazonProduct, Product } from "../../../Interfaces/Products";
+import { Product } from "../../../Interfaces/Products";
 import { useState } from "react";
 
 interface ProductProps {
@@ -10,38 +10,11 @@ interface ProductProps {
 export const CardList: React.FC<ProductProps> = ({ product}) => {
   const [isFavorited, setIsFavorited] = useState(false);
 
-  const getBrandStyles = () => {
-    switch (product?.brand?.toLowerCase()) {
-      case "amazon":
-        return {
-          card: "border-yellow-500 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-600",
-          price: "text-yellow-600",
-          button: "bg-yellow-600 hover:bg-yellow-700",
-        };
-      case "aliexpress":
-        return {
-          card: "border-red-500 bg-red-50 dark:border-red-600 dark:bg-red-600",
-          price: "text-white",
-          button: "bg-red-600 hover:bg-red-700",
-        };
-      case "ikea":
-        return {
-          card: "border-yellow-500 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-600",
-          price: "text-yellow-600",
-          button: "bg-yellow-600 hover:bg-yellow-700",
-        };
-      default:
-        return {
-          card: "border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800",
-          price: "text-gray-900 dark:text-gray-200",
-          button: "bg-blue-600 hover:bg-blue-700",
-        };
-    }
+  const styles = {
+    card: "border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800",
+    price: "text-gray-900 dark:text-gray-200",
+    button: "bg-blue-600 hover:bg-blue-700"
   };
-
-  const styles = getBrandStyles();
-
- 
 
   const handleFavoriteClick = () => {
     setIsFavorited(!isFavorited);

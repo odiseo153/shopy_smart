@@ -1,47 +1,6 @@
 import { Product } from "@/app/Interfaces/Products";
 import { CardGrid } from "../Cards/grid/CardGrid";
-
-
-const recommendedProducts1 = [
-    {
-      name: 'Wireless Earbuds',
-      brand: 'Amazon',
-      price: 49.99,
-      rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=500&auto=format'
-    },
-    {
-      name: 'Smart Watch',
-      brand: 'Aliexpress',
-      price: 199.99, 
-      rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1544117519-31a4b719223d?w=500&auto=format'
-    },
-    {
-      name: 'Laptop Stand',
-      brand: 'Ebay',
-      price: 29.99,
-      rating: 4.3,
-      image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&auto=format'
-    },
-    {
-      name: 'Coffee Maker',
-      brand: 'Shopify',
-      price: 89.99,
-      rating: 4.7,
-      image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500&auto=format'
-    },
-    {
-      name: 'Backpack',
-      brand: 'Corotos',
-      price: 39.99,
-      rating: 4.4,
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format'
-    }
-  ];
-
-
-  
+ 
 
   const recommendedProducts:Product[] = [
   {
@@ -100,7 +59,7 @@ export default function RecommendedProductsSection() {
         <h2 className="text-2xl font-bold mb-4">Recommended for You</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {recommendedProducts.map((product, i) => (
-            <CardGrid  product={product}/>
+            <CardGrid key={i} product={product}/>
           ))}
         </div>
       </section>

@@ -1,7 +1,9 @@
-import ProductScraper from "@/app/ScrappingHandler/ApiHandler";
+import CategoryHandler from "@/app/ScrappingHandler/CategoryHandler";
+import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
 import {  NextResponse } from 'next/server';
 
-const scraper = new ProductScraper(); // Instancia de la clase
+const scraper = new ProductsHandler(); // Instancia de la clase
+const categoryHandler = new CategoryHandler(scraper); // Instancia de la clase
 
 // /app/api/search/[search]/route.ts
 export async function GET(
@@ -17,7 +19,7 @@ export async function GET(
     );
   }
 
-  const scraper = new ProductScraper();
+  const scraper = new ProductsHandler();
 
   try {
 
@@ -26,7 +28,6 @@ export async function GET(
       ...(await scraper.getEbayProducts(search)),
       ...(await scraper.getProductsGearbest(search)),
        ...(await scraper.getProductsRomwe(search)),
-
        ...(await scraper.getNikeProducts(search)),
        ...(await scraper.getAsosProducts(search)),
        ...(await scraper.getBestBuyProducts(search)),
@@ -34,6 +35,7 @@ export async function GET(
      //  ...(await scraper.getWalmartProducts(search)),
     ];
     
+    const allCategoryData = await categoryHandler.getProductsByCategory(search);
 
     return NextResponse.json({ respuesta: allData });
   } catch (error) {

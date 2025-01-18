@@ -1,4 +1,4 @@
-import ProductScraper from "@/app/ScrappingHandler/ApiHandler";
+import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
 import { RecommendationScraper } from "@/app/ScrappingHandler/Recomendation";
 import {  NextResponse } from 'next/server';
 

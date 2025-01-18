@@ -1,14 +1,14 @@
 import { EventData } from '../Interfaces/EventData';
 import { Product } from '../Interfaces/Products';
-import ProductScraper from './ApiHandler'; // Importa la clase ProductScraper
+import ProductsHandler from './ProductsHandler'; // Importa la clase ProductScraper
 import { conjuntos_por_evento } from './data';
 
 
 export class RecommendationScraper {
-  private productScraper: ProductScraper;
+  private productScraper: ProductsHandler;
 
   constructor() {
-    this.productScraper = new ProductScraper();
+    this.productScraper = new ProductsHandler();
   }
 
   async getRecommendation(evento: string, gender: string): Promise<{recommendations: {[key: string]: Product[]}, description: string}> {

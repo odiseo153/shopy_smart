@@ -67,7 +67,7 @@ export default function Header() {
             <button
               onClick={searchProduct}
               disabled={isLoading} // Disables the button during loading
-              className={`absolute right-2 px-3 sm:px-4 py-2 text-sm sm:text-base text-white rounded-lg transition ${
+              className={`mx-2 px-3 sm:px-4 py-2 text-sm sm:text-base text-white rounded-lg transition ${
                 isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
               }`}
             >

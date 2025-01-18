@@ -2,17 +2,21 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import * as dotenv from 'dotenv';
 import { Product } from '../Interfaces/Products';
+import { ProductCategory } from './CategoryHandler';
 
 dotenv.config();
 
 const API_KEY_GEMINI = process.env.API_KEY_GEMINI;
 
 
-class ProductScraper {
+
+class ProductsHandler {
   private headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     'Accept-Language': 'en-US;q=0.5',
   };
+
+
 
   async getEbayProducts(search: string): Promise<Product[]> {
     const url = `https://www.ebay.com/sch/i.html?_nkw=${search}`;
@@ -387,6 +391,69 @@ async getPatagoniaProducts(search: string): Promise<Product[]> {
   }
 }
 
+
+
+async getCategorieFromProduct(product: string): Promise<ProductCategory> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY_GEMINI}`;
+  const headers = { 'Content-Type': 'application/json' };
+
+  const prompt = `
+    Quiero que actúes como un clasificadór profesional de productos. 
+    Devuelve la categoría del producto en esta estructura JSON:
+    {
+      "category": "general | clothing | electronics | sports | luxury"
+    }
+    teniendo en cuenta que el producto es "${product}".
+  `;
+
+  const data = {
+    contents: [{
+      parts: [{ text: prompt }]
+    }]
+  };
+
+  try {
+    const response = await axios.post(url, data, { headers });
+
+    if (response.status !== 200) {
+      console.error("Error en la API:", response.data);
+      return ProductCategory.GENERAL; // Categoría por defecto
+    }
+
+    const responseData = response.data;
+
+    if (!responseData.candidates || !responseData.candidates.length) {
+      console.error("No se encontraron candidatos en la respuesta de la API.");
+      return ProductCategory.GENERAL; // Categoría por defecto
+    }
+
+    const generatedText = responseData.candidates[0].content.parts[0].text;
+    const cleanedText = generatedText.replace(/```json|```/g, '').trim();
+    
+    let parsedResponse: any;
+
+    try {
+      parsedResponse = JSON.parse(cleanedText);
+      console.log(parsedResponse)
+    } catch (parseError) {
+      console.error("Error al parsear el JSON generado:", parseError);
+      return ProductCategory.GENERAL; // Categoría por defecto
+    }
+
+    const category = parsedResponse.category?.toLowerCase();
+
+    return category in ProductCategory ? ProductCategory[category as keyof typeof ProductCategory] : ProductCategory.GENERAL;
+
+  } catch (error) {
+    console.error("Error en la solicitud a la API:", error);
+    return ProductCategory.GENERAL; // Categoría por defecto
+  }
 }
 
-export default ProductScraper;
+
+
+
+
+}
+
+export default ProductsHandler;
