@@ -1,6 +1,6 @@
 import { Product } from "@/app/Interfaces/Products";
 import { CardGrid } from "../Cards/grid/CardGrid";
- 
+
 
   const recommendedProducts:Product[] = [
   {

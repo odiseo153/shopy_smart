@@ -8,7 +8,7 @@ import { CardList } from "../../Components/Cards/List/CardList";
 import Header from "../../Components/Header";
 import { Product } from "@/app/Interfaces/Products";
 import { useParams } from "next/navigation";
-import { CardGrid } from "@/app/components/Cards/grid/CardGrid";
+import { CardGrid } from "@/app/Components/Cards/grid/CardGrid";
 
 export default function Page() {
   const [view, setView] = useState<"grid" | "list">("grid");

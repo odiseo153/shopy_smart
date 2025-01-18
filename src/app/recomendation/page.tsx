@@ -12,7 +12,7 @@ import { CardList } from '../Components/Cards/List/CardList';
 import { Autocomplete } from '../Components/AutoComplete';
 import { Trash } from 'lucide-react';
 import { Product } from '../Interfaces/Products';
-import { CardGrid } from '../components/Cards/grid/CardGrid';
+import { CardGrid } from '../Components/Cards/grid/CardGrid';
 
 interface Recommendation {
   recommendation_text: string;
