@@ -98,7 +98,6 @@ export default function Page() {
   };
   
 
-
   const preciosRangos = agruparPorRangos(products.map(product => product.product_price), 6)
 
 
@@ -132,8 +131,6 @@ export default function Page() {
   
     return productsFilter;
   };
-  
-  
 
   const uniqueBrands = Array.from(
     new Set(products.map((product) => product.brand.toLowerCase()))
@@ -169,7 +166,7 @@ export default function Page() {
         />
       }
 
-        <main className="container mx-auto py-6">
+        <main className=" py-6">
           {isLoading && <Loading />}
           {!isLoading && !products.length && (
             <p className="text-center text-gray-600">No products found.</p>
@@ -177,7 +174,7 @@ export default function Page() {
           <div
             className={
               view === "grid"
-                ? "p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                ? "p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4"
                 : "p-2 space-y-4"
             }
           >
