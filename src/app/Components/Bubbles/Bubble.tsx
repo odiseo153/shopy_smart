@@ -7,7 +7,6 @@ import { NewsletterModal } from "./NewsLetterModal";
 
 
 
-
 export const Bubble = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [activeModal, setActiveModal] = useState<'newsletter' | 'info' | 'chat' | null>(null);

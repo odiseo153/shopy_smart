@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'; 
 import { SortBar } from '../Components/SortBar';
 import { Loading } from '../Components/Loading';
-import { CardGrid } from '../Components/Cards/grid/CardGrid';
 import { Input } from '../Components/Input';
 import Header from '../Components/Header';
 import { Eventos } from '../Data/Events';
@@ -13,6 +12,7 @@ import { CardList } from '../Components/Cards/List/CardList';
 import { Autocomplete } from '../Components/AutoComplete';
 import { Trash } from 'lucide-react';
 import { Product } from '../Interfaces/Products';
+import { CardGrid } from '../components/Cards/grid/CardGrid';
 
 interface Recommendation {
   recommendation_text: string;

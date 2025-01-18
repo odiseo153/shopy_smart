@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { SortBar } from "../../Components/SortBar";
 import { Filters } from "../../Components/Filters";
 import { Loading } from "../../Components/Loading";
-import { CardGrid } from "../../Components/Cards/grid/CardGrid";
 import { CardList } from "../../Components/Cards/List/CardList";
 import Header from "../../Components/Header";
 import { Product } from "@/app/Interfaces/Products";
 import { useParams } from "next/navigation";
+import { CardGrid } from "@/app/components/Cards/grid/CardGrid";
 
 export default function Page() {
   const [view, setView] = useState<"grid" | "list">("grid");

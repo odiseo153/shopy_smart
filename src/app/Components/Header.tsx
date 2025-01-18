@@ -1,10 +1,10 @@
 'use client';
 
 import { Menu, ShoppingCart, User } from 'lucide-react';
-import { Input } from './Input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'; 
+import { Input } from './Input';
 
 export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
