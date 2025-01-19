@@ -25,7 +25,7 @@ export function Filters({ onPlatformChange, onPriceChange, options, prices }: Fi
 
   const filterSections: FilterSection[] = [
     { title: "Paginas", options },
- //   { title: "Precios", options: prices },
+    { title: "Precios", options: prices },
   ];
 
   return (

@@ -10,6 +10,8 @@ import { Product } from "@/app/Interfaces/Products";
 import { useParams } from "next/navigation";
 import { CardGrid } from "@/app/Components/Cards/grid/CardGrid";
 
+
+
 export default function Page() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [products, setProducts] = useState<Product[]>([]);
@@ -61,18 +63,27 @@ export default function Page() {
     });
   };
 
-  const preciosRangos = agruparPorRangos(products.map(product => product.product_price), 6);
+  const preciosRangos = agruparPorRangos(products.filter(product => product.brand == 'ebay').map(x => x.product_price), 6);
 
   const filteredProducts = () => {
-    const cleanedPrice = (priceRange: string) => {
-      const [min, max] = priceRange.replace("$", "").split("-").map(parseFloat);
+    const cleanedPrice = (price: string) => {
+      const cleaned = price.replace(/[^0-9.]/g, "");
+      return parseFloat(cleaned) || 0;
+    };
+
+    const cleanedPriceRange = (priceRange: string) => {
+      const [min, max] = priceRange.replace("$", "").split("-").map(cleanedPrice);
       return { min, max };
     };
+
+    const { min: minFilter, max: maxFilter } = cleanedPriceRange(priceFilter);
+
+    console.log(minFilter, maxFilter);
+
     return products.filter(product => {
-      const { min: minFilter, max: maxFilter } = cleanedPrice(priceFilter);
-      const { min: productMin, max: productMax } = cleanedPrice(product.product_price);
+      const productPrice = cleanedPrice(product.product_price);
       return (platformFilter === "all" || product.brand.toLowerCase() === platformFilter) &&
-             (priceFilter === "all" || (productMin >= minFilter && productMax <= maxFilter));
+             (priceFilter === "all" || (productPrice >= minFilter && productPrice <= maxFilter));
     });
   };
 
@@ -106,7 +117,7 @@ export default function Page() {
         <main className="py-6 flex-1">
           {isLoading ? <Loading /> : (
             !products.length ? <p className="text-center text-gray-600">No products found.</p> : (
-              <div className={view === "grid" ? "p-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4" : "p-2 space-y-4"}>
+              <div className={view === "grid" ? "p-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" : "p-2 space-y-4"}>
                 {filterProducts(filteredProducts(), filterType).map((product, i) =>
                   view === "grid" ? <CardGrid key={i} product={product} /> : <CardList key={i} product={product} />
                 )}
