@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 
 export const Carousel = () => {
   const images = [
-    "https://fal.media/files/panda/ufZvyywJxR93m9kX-pZ-Y.png",
-    "https://fal.media/files/panda/kHalwAFqqrWta85dZCsk1.png",
-    "https://fal.media/files/koala/07CbIaggmjhTP99SiIYkV.png",
-    "https://fal.media/files/lion/reCauHfTknkQPKSozxgCT.png",
-    "https://fal.media/files/penguin/sHuGMAG4jDiN8AZa-HJma.png",
+    "imagen1.jpeg",
+    "imagen2.jpeg",
+    "imagen3.jpeg",
+    "imagen4.jpeg",
+    "imagen5.jpeg",
   ];
 
   const [currentImage, setCurrentImage] = useState(0);
