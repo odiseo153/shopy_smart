@@ -61,13 +61,13 @@ export default function Page() {
         <CategoriesSection />
 
         {/* Recommended Products */}
-        <RecommendedProductsSection />
 
         {/* Trending Now */}
         <PlatformsSection />
 
         {/* Promotions */}
         <PromotionsSection />
+        <RecommendedProductsSection />
       </main>
 
       {/* Footer */}

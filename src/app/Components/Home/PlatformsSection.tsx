@@ -37,29 +37,30 @@ const trendingItems = [
   }
 ];
 
+
 export default function PlatformsSection() {
   return (
-    <section className="mb-8">
-      <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
-        Platforms
-      </h2>
+    <section className="mb-12 rounded-lg p-8 bg-gray-50 shadow-lg">
+      <h2 className="text-4xl font-extrabold text-gray-800 mb-12 text-center relative">
+        Explore Our Platforms
+        <span className="block w-16 h-1 bg-blue-500 mx-auto mt-2"></span>
+      </h2> 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
         {trendingItems.map((item, i) => (
           <div
             key={i}
-            className="p-4 bg-gradient-to-r  rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 text-white"
+            className="p-4  rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 hover:bg-blue-50"
           >
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-24 object-contain rounded-lg bg-white p-2"
+              className="w-full h-36 object-contain  rounded-full p-4"
             />
-            <h3 className="mt-4 text-black text-lg font-semibold truncate text-center">
-              {item.name}
-            </h3>
           </div>
         ))}
       </div>
     </section>
   );
 }
+
+

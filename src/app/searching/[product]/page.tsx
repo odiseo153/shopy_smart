@@ -21,23 +21,51 @@ export default function Page() {
   const [priceFilter, setPriceFilter] = useState("all");
 
   const { product: query } = useParams();
-
   useEffect(() => {
     const fetchProducts = async () => {
       if (!query) return;
+  
       setIsLoading(true);
+      setProducts([]); // Reiniciar la lista de productos antes de una nueva búsqueda
+  
       try {
         const response = await fetch(`/api/search/${encodeURIComponent(query as string)}`);
-        const data = await response.json();
-        setProducts(data.respuesta || []);
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder("utf-8");
+  
+        if (!reader) {
+          console.error("No readable stream available.");
+          return;
+        }
+  
+        let dataBuffer = "";
+        setIsLoading(false);
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+  
+          dataBuffer += decoder.decode(value, { stream: true });
+  
+          const chunks = dataBuffer.split("\n");
+          dataBuffer = chunks.pop() || ""; // Mantén datos incompletos para la próxima iteración
+  
+          for (const chunk of chunks) {
+            if (chunk.trim()) {
+              const parsedData = JSON.parse(chunk);
+  
+              // Agregar los nuevos productos a la lista existente
+              setProducts((prevProducts) => [...prevProducts, ...(parsedData.products || [])]);
+            }
+          }
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
+  
     fetchProducts();
   }, [query]);
+  
 
   const cleanPrice = (price: string = "") => parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
 
@@ -88,12 +116,17 @@ export default function Page() {
   };
 
   const uniqueBrands = Array.from(new Set(products.map(product => product.brand.toLowerCase())));
+  const filterlProducts = filterProducts(filteredProducts(), filterType);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="bg-gray-100 py-3">
         <SortBar view={view} onViewChange={setView}>
+          <div className="font-bold">
+            Products: {filterlProducts.length} 
+          </div>
+
           <div className="container mx-auto flex items-center justify-between">
             <select className="px-3 py-2 border rounded-lg" onChange={(e) => setFilterType(e.target.value)}>
               <option value="best-match">Best Match</option>
@@ -118,7 +151,7 @@ export default function Page() {
           {isLoading ? <Loading /> : (
             !products.length ? <p className="text-center text-gray-600">No products found.</p> : (
               <div className={view === "grid" ? "p-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" : "p-2 space-y-4"}>
-                {filterProducts(filteredProducts(), filterType).map((product, i) =>
+                {filterlProducts.map((product, i) =>
                   view === "grid" ? <CardGrid key={i} product={product} /> : <CardList key={i} product={product} />
                 )}
               </div>

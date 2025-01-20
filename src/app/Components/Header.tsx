@@ -84,9 +84,7 @@ export default function Header() {
           >
             Recomendaciones
           </Link>
-          */}
 
-          {/* Menú de usuario */}
           <div className="relative">
             <button
               onClick={toggleUserMenu}
@@ -105,7 +103,6 @@ export default function Header() {
             )}
           </div>
 
-          {/* Carrito de compras */}
           <Link
             href="/cartDetail"
             className="relative text-gray-800 hover:text-green-500 transition"
@@ -115,6 +112,7 @@ export default function Header() {
               3
             </span>
           </Link>
+              */}
         </div>
       </div>
     </header>
