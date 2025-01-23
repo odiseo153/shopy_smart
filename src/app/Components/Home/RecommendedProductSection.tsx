@@ -79,7 +79,9 @@ export default function RecommendedProductsSection() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {products.map((product, i) => (
-            <CardGrid key={i} product={product} />
+            <CardGrid key={i} product={product} isSelected={false} onSelect={function (product: Product): void {
+              throw new Error("Function not implemented.");
+            } } />
           ))}
         </div>
       )}

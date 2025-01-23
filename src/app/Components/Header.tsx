@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, ShoppingCart, User } from 'lucide-react';
+import { Bot, Menu, ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react'; 
@@ -77,14 +77,16 @@ export default function Header() {
         </div>
 
         <div className="flex items-center space-x-4 sm:space-x-6 mt-4 sm:mt-0">
-        {/* Enlaces y Menú de usuario 
+
           <Link
             href="/recomendation"
-            className="text-gray-800 hover:text-green-500 font-medium transition text-sm sm:text-base"
+            className="flex items-center text-gray-800 hover:text-green-500 font-medium transition text-sm sm:text-base"
           >
+            <Bot className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
             Recomendaciones
           </Link>
 
+{/*
           <div className="relative">
             <button
               onClick={toggleUserMenu}
@@ -113,6 +115,7 @@ export default function Header() {
             </span>
           </Link>
               */}
+              
         </div>
       </div>
     </header>

@@ -43,15 +43,17 @@ export class RecommendationScraper {
 
   private async fetchAllProducts(search: string): Promise<Product[]> {
     const platforms = [
-      this.productScraper.getAliExpressProducts,
-      this.productScraper.getEbayProducts,
-      this.productScraper.getProductsGearbest,
-      this.productScraper.getProductsRomwe,
-      this.productScraper.getWalmartProducts,
-      this.productScraper.getAsosProducts,
-      this.productScraper.getBestBuyProducts,
-      this.productScraper.getPatagoniaProducts,
-    //  this.productScraper.getNikeProducts,
+      this.productScraper.getEbayProducts
+    /*
+    this.productScraper.getAliExpressProducts,
+    this.productScraper.getProductsGearbest,
+    this.productScraper.getProductsRomwe,
+    this.productScraper.getWalmartProducts,
+    this.productScraper.getAsosProducts,
+    this.productScraper.getBestBuyProducts,
+    this.productScraper.getPatagoniaProducts,
+    this.productScraper.getNikeProducts,
+    */  
     ];
 
     const allData: Product[][] = [];

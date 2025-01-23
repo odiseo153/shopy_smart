@@ -16,6 +16,7 @@ export default function Page() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingComparation, setIsLoadingComparation] = useState(false);
   const [filterType, setFilterType] = useState("best-match");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
@@ -130,11 +131,15 @@ export default function Page() {
 
   const handleExtractSelectedProducts =async () => {
     console.log("Productos seleccionados:", selectedProducts);
+    setIsLoadingComparation(true);
+
     const comparaciones = await comparation.get_comparation(selectedProducts);
 
     setComparaciones(comparaciones.comparaciones);
     setResultadoFinal(comparaciones.resultadoFinal);
     setIsModalOpen(true);
+    setIsLoadingComparation(false);
+
   }; 
 
   const uniqueBrands = Array.from(new Set(products.map((product) => product.brand.toLowerCase())));
@@ -197,7 +202,7 @@ export default function Page() {
           )}
         </main>
       </div>
-      {selectedProducts.length > 0 && (
+      {selectedProducts.length > 0  &&(
         <>
           <ComparationModal
             isOpen={isModalOpen}
@@ -208,9 +213,10 @@ export default function Page() {
           <div className="fixed bottom-4 right-4">
             <button
               onClick={handleExtractSelectedProducts}
+              disabled={isLoadingComparation}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600"
             >
-              Comparar
+              {isLoadingComparation ? <span>Loading...</span> : "Comparar"}
             </button>
           </div>
         </>
