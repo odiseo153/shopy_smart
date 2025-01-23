@@ -5,9 +5,11 @@ import { useState } from "react";
 
 interface ProductProps {
   product: Product;
+  isSelected?: boolean; // Nuevo prop para indicar si el producto está seleccionado
+  onSelect?: (product: Product) => void; // Nuevo prop para manejar la selección
 }
 
-export const CardList: React.FC<ProductProps> = ({ product}) => {
+export const CardList: React.FC<ProductProps> = ({ product, isSelected, onSelect }) => {
   const [isFavorited, setIsFavorited] = useState(false);
 
   const styles = {
@@ -24,6 +26,20 @@ export const CardList: React.FC<ProductProps> = ({ product}) => {
     <div
       className={`flex items-start space-x-6 rounded-lg border p-6 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl ${styles.card} animate-fade-in`}
     >
+      {/* Radio Button */}
+        {isSelected && onSelect && 
+      <div className="flex-shrink-0">
+        <input
+        placeholder="ra"
+          type="radio"
+          checked={isSelected}
+          onChange={() => onSelect(product)}
+          className="h-5 w-5 cursor-pointer"
+        />
+      </div>
+      }
+
+      {/* Product Image */}
       <div className="flex-shrink-0 w-32 h-32 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700">
         <a href={product?.product_url} target="_blank" rel="noopener noreferrer">
           <img
@@ -34,6 +50,7 @@ export const CardList: React.FC<ProductProps> = ({ product}) => {
         </a>
       </div>
 
+      {/* Product Information */}
       <div className="flex-1">
         <div className="flex items-center justify-between mb-2">
           <span className="flex items-center gap-2">
@@ -46,7 +63,6 @@ export const CardList: React.FC<ProductProps> = ({ product}) => {
               {product?.brand}
             </span>
           </span>
-        
         </div>
 
         <a
@@ -58,6 +74,7 @@ export const CardList: React.FC<ProductProps> = ({ product}) => {
           {product?.product_title}
         </a>
 
+        {/* Rating */}
         <div className="mt-2 flex items-center">
           {[...Array(5)].map((_, i) => (
             <FontAwesomeIcon
@@ -78,6 +95,7 @@ export const CardList: React.FC<ProductProps> = ({ product}) => {
           </span>
         </div>
 
+        {/* Price */}
         <div className="mt-4">
           <span className={`block text-xl font-bold ${styles.price}`}>
             {product?.product_price}

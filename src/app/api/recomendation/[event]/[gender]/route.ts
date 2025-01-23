@@ -1,5 +1,5 @@
-import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
-import { RecommendationScraper } from "@/app/ScrappingHandler/Recomendation";
+import ProductsHandler from "@/app/Handler/ProductsHandler";
+import { RecommendationScraper } from "@/app/Handler/Recomendation";
 import {  NextResponse } from 'next/server';
 
 const scraper = new RecommendationScraper(); // Instancia de la clase

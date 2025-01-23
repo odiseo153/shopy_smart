@@ -27,7 +27,7 @@ export default function Page() {
         {/* Hero Section */}
         <section className="">
           <div className="overflow-hidden rounded-lg ">
-            <FeatureSteps title='Bienvenido a ShopMart' features={[
+            <FeatureSteps title='Bienvenido a ShopyMart' features={[
               {
                 "step": "1",
                 "title": "Todo en uno",

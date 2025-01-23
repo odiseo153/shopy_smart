@@ -5,11 +5,24 @@ import Link from 'next/link';
 
 interface ProductProps {
   product: Product;
+  isSelected: boolean; // Indicates if the product is selected
+  onSelect: (product: Product) => void; // Handles product selection
 }
 
-export const CardGrid: React.FC<ProductProps> = ({ product }) => {
+export const CardGrid: React.FC<ProductProps> = ({ product, isSelected, onSelect }) => {
   return (
     <div className="max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+      {/* Radio Button */}
+      <div className="mb-4">
+        <input
+        placeholder="radio"
+        type="checkbox" 
+        checked={isSelected}
+        onChange={() => onSelect(product)}
+        className="h-5 w-5 cursor-pointer"
+        />
+      </div>  
+
       {/* Product Image */}
       <div className="relative h-56 w-full overflow-hidden rounded-lg">
         <Link href={product?.product_url} target="_blank" rel="noopener noreferrer">

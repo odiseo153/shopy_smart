@@ -51,7 +51,7 @@ export class RecommendationScraper {
       this.productScraper.getAsosProducts,
       this.productScraper.getBestBuyProducts,
       this.productScraper.getPatagoniaProducts,
-      this.productScraper.getNikeProducts,
+    //  this.productScraper.getNikeProducts,
     ];
 
     const allData: Product[][] = [];

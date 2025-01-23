@@ -1,5 +1,5 @@
-import CategoryHandler from "@/app/ScrappingHandler/CategoryHandler";
-import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
+import CategoryHandler from "@/app/Handler/CategoryHandler";
+import ProductsHandler from "@/app/Handler/ProductsHandler";
 import { NextResponse } from 'next/server';
 
 const scraper = new ProductsHandler(); // Instancia de la clase
@@ -24,7 +24,7 @@ export async function GET(
     { name: "Ebay", method: () => scraper.getEbayProducts(search) },
     { name: "Gearbest", method: () => scraper.getProductsGearbest(search) },
     { name: "Romwe", method: () => scraper.getProductsRomwe(search) },
-    { name: "Nike", method: () => scraper.getNikeProducts(search) },
+    //{ name: "Nike", method: () => scraper.getNikeProducts(search) },
     { name: "Asos", method: () => scraper.getAsosProducts(search) },
     { name: "BestBuy", method: () => scraper.getBestBuyProducts(search) },
     { name: "Patagonia", method: () => scraper.getPatagoniaProducts(search) },

@@ -1,8 +1,6 @@
 import { Product } from "@/app/Interfaces/Products";
 import { CardGrid } from "../Cards/grid/CardGrid";
 import { useState, useEffect } from "react";
-import { Loading } from "../Loading";
-
 
 
 export default function RecommendedProductsSection() {

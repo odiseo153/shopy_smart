@@ -1,4 +1,4 @@
-import ProductsHandler from "@/app/ScrappingHandler/ProductsHandler";
+import ProductsHandler from "@/app/Handler/ProductsHandler";
 import {  NextResponse } from 'next/server';
 
 const scraper = new ProductsHandler(); // Instancia de la clase

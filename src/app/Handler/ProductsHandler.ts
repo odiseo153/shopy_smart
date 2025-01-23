@@ -201,203 +201,204 @@ class ProductsHandler {
 
 
 
-async getBestBuyProducts(search: string): Promise<Product[]> {
-  const url = `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys`;
+  async getBestBuyProducts(search: string): Promise<Product[]> {
+    const url = `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys`;
 
-  try {
-    const response = await axios.get(url, { headers: this.headers });
+    try {
+      const response = await axios.get(url, { headers: this.headers });
 
-    if (response.status !== 200) {
-      console.error(`Error al hacer la solicitud: ${response.status}`);
-      return [];
-    }
+      if (response.status !== 200) {
+        console.error(`Error al hacer la solicitud: ${response.status}`);
+        return [];
+      }
 
-    const $ = cheerio.load(response.data);
-    const products: Product[] = [];
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
 
-    $('li.sku-item').each((_, element) => {
-      const title = $(element).find('h4.sku-title').text().trim();
-      const price = $(element).find('span[aria-hidden="true"]').text().trim();
-      const link = $(element).find('a').attr('href');
-      const image = $(element).find('img.product-image').attr('src');
-
-      products.push({
-        product_title: title || 'N/A',
-        product_price: price || 'N/A',
-        product_url: link ? `https://www.bestbuy.com${link}` : 'N/A',
-        brand: 'bestbuy',
-        icon: 'https://cdn.dribbble.com/users/1399110/screenshots/15908208/best_buy_refresh.png',
-        product_photo: image || 'N/A',
-      });
-    });
-
-    return products;
-  } catch (error) {
-    console.error(`Error en la solicitud: ${error}`);
-    return [];
-  }
-}
-
-
-async getAsosProducts(search:string): Promise<Product[]> {
-  const url = `https://www.asos.com/search/?q=${search}`;
-  const headers = {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-  };
-
-  try {
-    const response = await axios.get(url, { headers });
-
-    if (response.status !== 200) {
-      console.error(`Error al hacer la solicitud: ${response.status}`);
-      return [];
-    }
-
-    const $ = cheerio.load(response.data);
-    const products: Product[] = [];
-
-    $('a.productLink_KM4PI').each((_, element) => {
-      try {
-        const productUrl = $(element).attr('href') || 'N/A';
-        const productImage = $(element).find('img').attr('src') || 'N/A';
-        const productName = $(element)
-          .find('p.productDescription_sryaw')
-          .text()
-          .trim() || 'N/A';
-
-        const originalPrice = $(element)
-          .find('span.originalPrice_jEWt1')
-          .text()
-          .trim() || 'N/A';
-        const salePrice = $(element)
-          .find('span.saleAmount_C4AGB')
-          .text()
-          .trim() || 'N/A';
-        const discount = $(element)
-          .find('div.productDeal_RiYVs')
-          .text()
-          .trim() || 'N/A';
+      $('li.sku-item').each((_, element) => {
+        const title = $(element).find('h4.sku-title').text().trim();
+        const price = $(element).find('span[aria-hidden="true"]').text().trim();
+        const link = $(element).find('a').attr('href');
+        const image = $(element).find('img.product-image').attr('src');
 
         products.push({
-          product_title: productName,
-          product_price: salePrice || originalPrice,
-          product_url: productUrl.startsWith('http') ? productUrl : `https://www.asos.com${productUrl}`,
-          product_photo: productImage,
-          product_original_price: originalPrice,
-          brand: 'asos',
-          icon: 'https://e7.pngegg.com/pngimages/510/48/png-clipart-asos-com-fashion-brand-clothing-online-shopping-others-fashion-logo-thumbnail.png',
+          product_title: title || 'N/A',
+          product_price: price || 'N/A',
+          product_url: link ? `https://www.bestbuy.com${link}` : 'N/A',
+          brand: 'bestbuy',
+          icon: 'https://cdn.dribbble.com/users/1399110/screenshots/15908208/best_buy_refresh.png',
+          product_photo: image || 'N/A',
         });
-      } catch (error) {
-        console.error(`Error procesando un producto: ${error}`);
-      }
-    });
+      });
 
-    return products;
-  } catch (error) {
-    console.error(`Error en la solicitud: ${error}`);
-    return [];
+      return products;
+    } catch (error) {
+      console.error(`Error en la solicitud: ${error}`);
+      return [];
+    }
   }
-}
 
-async getNikeProducts(search: string): Promise<Product[]> {
-  const url = `https://www.nike.com/es/w?q=${search}&vst=${search}`;
-  const headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-  };
 
-  try {
+
+  async getAsosProducts(search: string): Promise<Product[]> {
+    const url = `https://www.asos.com/search/?q=${search}`;
+    const headers = {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    };
+
+    try {
       const response = await axios.get(url, { headers });
 
       if (response.status !== 200) {
-          console.error(`Error al hacer la solicitud: ${response.status}`);
-          return [];
+        console.error(`Error al hacer la solicitud: ${response.status}`);
+        return [];
+      }
+
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      $('a.productLink_KM4PI').each((_, element) => {
+        try {
+          const productUrl = $(element).attr('href') || 'N/A';
+          const productImage = $(element).find('img').attr('src') || 'N/A';
+          const productName = $(element)
+            .find('p.productDescription_sryaw')
+            .text()
+            .trim() || 'N/A';
+
+          const originalPrice = $(element)
+            .find('span.originalPrice_jEWt1')
+            .text()
+            .trim() || 'N/A';
+          const salePrice = $(element)
+            .find('span.saleAmount_C4AGB')
+            .text()
+            .trim() || 'N/A';
+          const discount = $(element)
+            .find('div.productDeal_RiYVs')
+            .text()
+            .trim() || 'N/A';
+
+          products.push({
+            product_title: productName,
+            product_price: salePrice || originalPrice,
+            product_url: productUrl.startsWith('http') ? productUrl : `https://www.asos.com${productUrl}`,
+            product_photo: productImage,
+            product_original_price: originalPrice,
+            brand: 'asos',
+            icon: 'https://e7.pngegg.com/pngimages/510/48/png-clipart-asos-com-fashion-brand-clothing-online-shopping-others-fashion-logo-thumbnail.png',
+          });
+        } catch (error) {
+          console.error(`Error procesando un producto: ${error}`);
+        }
+      });
+
+      return products;
+    } catch (error) {
+      console.error(`Error en la solicitud: ${error}`);
+      return [];
+    }
+  }
+
+  async getNikeProducts(search: string): Promise<Product[]> {
+    const url = `https://www.nike.com/es/w?q=${search}&vst=${search}`;
+    const headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+
+      if (response.status !== 200) {
+        console.error(`Error al hacer la solicitud: ${response.status}`);
+        return [];
       }
 
       const $ = cheerio.load(response.data);
       const products: Product[] = [];
 
       $('div.product-card__body').each((_, item) => {
-          try {
-              const productName = $(item).find('div.product-card__title').text().trim() || 'N/A';
-              const productUrl = $(item).find('a.product-card__link-overlay').attr('href') || 'N/A';
-              const productImage = $(item).find('img.product-card__hero-image').attr('src') || 'N/A';
-              
-              const currentPrice = $(item).find('div.product-price.is--current-price').text().trim() || 'N/A';
-              const originalPrice = $(item).find('div.product-price.es__styling.is--striked-out').text().trim() || 'N/A';
-              
-              products.push({
-                  product_title: productName,
-                  product_price: currentPrice || originalPrice,
-                  product_url: productUrl.startsWith('http') ? productUrl : `https://www.nike.com${productUrl}`,
-                  product_photo: productImage,
-                  product_original_price: originalPrice,
-                  brand: 'nike',
-                  icon: 'https://cdn4.iconfinder.com/data/icons/flat-brand-logo-2/512/nike-512.png'
-              });
-          } catch (error) {
-              console.error(`Error procesando un producto: ${error}`);
-          }
+        try {
+          const productName = $(item).find('div.product-card__title').text().trim() || 'N/A';
+          const productUrl = $(item).find('a.product-card__link-overlay').attr('href') || 'N/A';
+          const productImage = $(item).find('product-card__hero-image css-1fxh5tw').attr('src') || 'N/A';
+
+          const currentPrice = $(item).find('product-price is--current-price css-1ydfahe').text().trim() || 'N/A';
+          const originalPrice = $(item).find('product-price es__styling is--current-price css-11s12ax').text().trim() || 'N/A';
+
+          products.push({
+            product_title: productName,
+            product_price: currentPrice || originalPrice,
+            product_url: productUrl.startsWith('http') ? productUrl : `https://www.nike.com${productUrl}`,
+            product_photo: productImage,
+            product_original_price: originalPrice,
+            brand: 'nike',
+            icon: 'https://cdn4.iconfinder.com/data/icons/flat-brand-logo-2/512/nike-512.png'
+          });
+        } catch (error) {
+          console.error(`Error procesando un producto: ${error}`);
+        }
       });
 
       return products;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error en la solicitud: ${error}`);
       return [];
+    }
   }
-}
 
-async getPatagoniaProducts(search: string): Promise<Product[]> {
-  const url = `https://www.patagonia.com/search/?q=${search}`;
-  const headers = {
+  async getPatagoniaProducts(search: string): Promise<Product[]> {
+    const url = `https://www.patagonia.com/search/?q=${search}`;
+    const headers = {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-  };
+    };
 
-  try {
+    try {
       const response = await axios.get(url, { headers });
 
       if (response.status !== 200) {
-          console.error(`Error al hacer la solicitud: ${response.status}`);
-          return [];
+        console.error(`Error al hacer la solicitud: ${response.status}`);
+        return [];
       }
 
       const $ = cheerio.load(response.data);
       const products: Product[] = [];
 
       $('div.product-tile__content').each((_, container) => {
-          try {
-              const productName = $(container).find('p.product-tile__name').text().trim() || 'Nombre no disponible';
-              const productPrice = $(container).find('span.value').text().trim() || 'Precio no disponible';
-              const productImageUrl = $(container).find('meta').attr('content')?.trim() || 'URL de imagen no disponible';
-              const productLink = $(container).find('a').attr('href')?.trim() || 'Enlace no disponible';
+        try {
+          const productName = $(container).find('p.product-tile__name').text().trim() || 'Nombre no disponible';
+          const productPrice = $(container).find('div.price').text().trim() || 'Precio no disponible';
+          const productImageUrl = $(container).find('meta').attr('content')?.trim() || 'URL de imagen no disponible';
+          const productLink = $(container).find('a').attr('href')?.trim() || 'Enlace no disponible';
 
-              products.push({
-                  product_title: productName,
-                  product_price: productPrice,
-                  product_url: productLink.startsWith('http') ? productLink : `https://www.patagonia.com${productLink}`,
-                  product_photo: productImageUrl,
-                  brand: 'patagonia',
-                  icon: 'https://i.pinimg.com/736x/5e/5d/f8/5e5df87c306b242fc92186f2dabc892b.jpg',
-              });
-          } catch (error) {
-              console.error(`Error procesando un producto: ${error}`);
-          }
+          products.push({
+            product_title: productName,
+            product_price: productPrice,
+            product_url: productLink.startsWith('http') ? productLink : `https://www.patagonia.com${productLink}`,
+            product_photo: productImageUrl,
+            brand: 'patagonia',
+            icon: 'https://i.pinimg.com/736x/5e/5d/f8/5e5df87c306b242fc92186f2dabc892b.jpg',
+          });
+        } catch (error) {
+          console.error(`Error procesando un producto: ${error}`);
+        }
       });
- 
+
       return products;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error en la solicitud: ${error}`);
       return [];
+    }
   }
-}
 
 
 
-async getCategorieFromProduct(product: string): Promise<ProductCategory> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY_GEMINI}`;
-  const headers = { 'Content-Type': 'application/json' };
+  async getCategorieFromProduct(product: string): Promise<ProductCategory> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY_GEMINI}`;
+    const headers = { 'Content-Type': 'application/json' };
 
-  const prompt = `
+    const prompt = `
     Quiero que actúes como un clasificadór profesional de productos. 
     Devuelve la categoría del producto en esta estructura JSON:
     {
@@ -406,49 +407,49 @@ async getCategorieFromProduct(product: string): Promise<ProductCategory> {
     teniendo en cuenta que el producto es "${product}".
   `;
 
-  const data = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }]
-  };
-
-  try {
-    const response = await axios.post(url, data, { headers });
-
-    if (response.status !== 200) {
-      console.error("Error en la API:", response.data);
-      return ProductCategory.GENERAL; // Categoría por defecto
-    }
-
-    const responseData = response.data;
-
-    if (!responseData.candidates || !responseData.candidates.length) {
-      console.error("No se encontraron candidatos en la respuesta de la API.");
-      return ProductCategory.GENERAL; // Categoría por defecto
-    }
-
-    const generatedText = responseData.candidates[0].content.parts[0].text;
-    const cleanedText = generatedText.replace(/```json|```/g, '').trim();
-    
-    let parsedResponse: any;
+    const data = {
+      contents: [{
+        parts: [{ text: prompt }]
+      }]
+    };
 
     try {
-      parsedResponse = JSON.parse(cleanedText);
-      console.log(parsedResponse)
-    } catch (parseError) {
-      console.error("Error al parsear el JSON generado:", parseError);
+      const response = await axios.post(url, data, { headers });
+
+      if (response.status !== 200) {
+        console.error("Error en la API:", response.data);
+        return ProductCategory.GENERAL; // Categoría por defecto
+      }
+
+      const responseData = response.data;
+
+      if (!responseData.candidates || !responseData.candidates.length) {
+        console.error("No se encontraron candidatos en la respuesta de la API.");
+        return ProductCategory.GENERAL; // Categoría por defecto
+      }
+
+      const generatedText = responseData.candidates[0].content.parts[0].text;
+      const cleanedText = generatedText.replace(/```json|```/g, '').trim();
+
+      let parsedResponse: any;
+
+      try {
+        parsedResponse = JSON.parse(cleanedText);
+        console.log(parsedResponse)
+      } catch (parseError) {
+        console.error("Error al parsear el JSON generado:", parseError);
+        return ProductCategory.GENERAL; // Categoría por defecto
+      }
+
+      const category = parsedResponse.category?.toLowerCase();
+
+      return category in ProductCategory ? ProductCategory[category as keyof typeof ProductCategory] : ProductCategory.GENERAL;
+
+    } catch (error) {
+      console.error("Error en la solicitud a la API:", error);
       return ProductCategory.GENERAL; // Categoría por defecto
     }
-
-    const category = parsedResponse.category?.toLowerCase();
-
-    return category in ProductCategory ? ProductCategory[category as keyof typeof ProductCategory] : ProductCategory.GENERAL;
-
-  } catch (error) {
-    console.error("Error en la solicitud a la API:", error);
-    return ProductCategory.GENERAL; // Categoría por defecto
   }
-}
 
 
 
