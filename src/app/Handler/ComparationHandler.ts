@@ -1,7 +1,14 @@
 import OpenAI from "openai";
 import { Product } from "../Interfaces/Products";
+import dotenv from 'dotenv';
 
-const api_key = "sk-84d00a3d143342edafc06d2be52214ab"; 
+dotenv.config();
+
+const api_key = process.env.NEXT_PUBLIC_API_URL; 
+
+if (!api_key) {
+  throw new Error("La variable de entorno NEXT_PUBLIC_API_URL no está definida.");
+}
 
 const openai = new OpenAI({
   baseURL: 'https://api.deepseek.com',
