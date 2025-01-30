@@ -29,11 +29,11 @@ export class ComparationHandler {
       const productDetails = products
         .map(
           (product, index) => `
-          Producto ${index + 1}:
-          - Nombre: ${product.product_title}
-          - Precio: ${product.product_price}
-          - Marca: ${product.brand}
-          - URL: ${product.product_url}
+          ### Producto ${index + 1}:
+          - **Nombre**: ${product.product_title}
+          - **Precio**: ${product.product_price}
+          - **Marca**: ${product.brand}
+          - **URL**: ${product.product_url}
         `
         )
         .join("\n");
@@ -41,9 +41,9 @@ export class ComparationHandler {
       const systemMessage = `
         Eres un comparador de productos profesional. Te proporcionaré una lista de productos y quiero que compares sus características principales, incluyendo:
         1. Precio.
-        3. Características destacadas.
-        4. Ventajas y desventajas de cada uno.
-        5. Una recomendación final basada en la mejor relación calidad-precio.
+        2. Características destacadas.
+        3. Ventajas y desventajas de cada uno.
+        4. Una recomendación final basada en la mejor relación calidad-precio.
 
         Aquí están los detalles de los productos:
         ${productDetails}
@@ -57,21 +57,19 @@ export class ComparationHandler {
         ---
         ### Comparaciones:
         ### Producto 1: [Nombre del producto]
-        - Precio: [Precio]
-        - Características destacadas: [Características]
-        - Ventajas: [Ventajas]
-        - Desventajas: [Desventajas]
+        - **Precio**: [Precio]
+        - **Características destacadas**: [Características]
+        - **Ventajas**: [Ventajas]
+        - **Desventajas**: [Desventajas]
 
         ### Producto 2: [Nombre del producto]
-        - Precio: [Precio]
-        - Características destacadas: [Características]
-        - Ventajas: [Ventajas]
-        - Desventajas: [Desventajas]
+        - **Precio**: [Precio]
+        - **Características destacadas**: [Características]
+        - **Ventajas**: [Ventajas]
+        - **Desventajas**: [Desventajas]
 
         ### Resultado final:
-        - [Recomendación final basada en la relación calidad-precio y otras consideraciones].
-
-        ponle una buena estructura teniendo en cu
+        - **Recomendación final**: [Recomendación final basada en la relación calidad-precio y otras consideraciones].
       `;
 
       // Llamar a la API de OpenAI
@@ -89,7 +87,7 @@ export class ComparationHandler {
       // Obtener la respuesta del modelo
       const response = completion.choices[0].message.content as string;
 
-      // Procesar la respuesta para dividirla en "partes" y "resultado final"
+      // Procesar la respuesta para dividirla en "Comparaciones" y "Resultado final"
       const [comparaciones, resultadoFinal] = this.processResponse(response);
 
       console.log("Comparaciones:", comparaciones);

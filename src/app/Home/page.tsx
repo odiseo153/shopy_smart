@@ -5,13 +5,10 @@ import { Carousel } from '../Components/Home/Carousel';
 import CategoriesSection from '../Components/Home/CategoriesSection';
 import RecommendedProductsSection from '../Components/Home/RecommendedProductSection';
 import PlatformsSection from '../Components/Home/PlatformsSection';
-import PromotionsSection from '../Components/Home/PromotionsSection';
-import Footer from '../Components/Home/Footer';
-import Offers from '../Components/Home/Offers';
 import { Bubble } from '../Components/Bubbles/Bubble';
 import { FeatureSteps } from '@/components/blocks/feature-section';
-
-
+import { Suspense } from 'react';
+import ShopMateDescription from '../Components/Home/ShopMateDescription';
 
 
 export default function Page() {
@@ -25,6 +22,7 @@ export default function Page() {
 
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
+        <Suspense fallback={<div>Loading...</div>}>
         <section className="">
           <div className="overflow-hidden rounded-lg ">
             <FeatureSteps title='Bienvenido a ShopyMart' features={[
@@ -55,26 +53,31 @@ export default function Page() {
             ]} />
           </div>
         </section>
+        </Suspense>
 
         {/* Categories */}
-        <Offers />
+        <Suspense fallback={<div>Loading...</div>}>
+        <ShopMateDescription />
+        </Suspense>
+        
+        <Suspense fallback={<div>Loading...</div>}>
         <CategoriesSection />
+        </Suspense>
 
         {/* Recommended Products */}
 
         {/* Trending Now */}
+        <Suspense fallback={<div>Loading...</div>}>
         <PlatformsSection />
+        </Suspense>
 
         {/* Promotions */}
-        <PromotionsSection />
+        <Suspense fallback={<div>Loading...</div>}>
         <RecommendedProductsSection />
+        </Suspense>
       </main>
 
       {/* Footer */}
     </div>
   );
 }
-
-
-
-
