@@ -43,9 +43,12 @@ export default function CategoriesSection() {
   return (
     <section className="mb-12 px-4 sm:px-6 lg:px-8">
       {/* Título */}
-      <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+      <h2 className="text-4xl font-extrabold text-gray-900 mb-12 text-center relative">
         Explora nuestras categorías
+        <span className="block w-20 h-1.5 bg-blue-500 mx-auto mt-3 rounded-full"></span>
       </h2>
+
+
 
       {/* Grid de categorías */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">

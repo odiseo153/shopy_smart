@@ -1,22 +1,45 @@
 import OpenAI from "openai";
 import { Product } from "../Interfaces/Products";
 import dotenv from 'dotenv';
+import { Buffer } from 'buffer';
+
 
 dotenv.config();
 
-const api_key = process.env.NEXT_PUBLIC_API_URL; 
+const api_key_deepseek = process.env.NEXT_PUBLIC_API_URL; 
+const API_KEY_GEMINIS = process.env.NEXT_PUBLIC_API_URL_GEMINIS; 
 
-if (!api_key) {
+
+interface ClothingAnalysisResult {
+  busquedas: string[];
+  error?: string;
+}
+
+interface GeminiResponse {
+  candidates: Array<{
+      content: {
+          parts: Array<{
+              text: string;
+          }>;
+      };
+  }>;
+}
+
+
+
+
+
+if (!api_key_deepseek) {
   throw new Error("La variable de entorno NEXT_PUBLIC_API_URL no está definida.");
 }
 
 const openai = new OpenAI({
   baseURL: 'https://api.deepseek.com',
-  apiKey: api_key,
+  apiKey: api_key_deepseek,
   dangerouslyAllowBrowser: true
 });
 
-export class ComparationHandler {
+export class IA_Handler {
   // Método para comparar productos
   async get_comparation(products: Product[]) {
     try {
@@ -114,4 +137,74 @@ export class ComparationHandler {
 
     return [comparaciones, resultadoFinal];
   }
+
+
+
+  async analyzeClothing(imageBase64: string): Promise<ClothingAnalysisResult> {
+    const URL: string = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY_GEMINIS}`;
+
+    try {
+        const analysisPrompt: string = `
+        Eres un asistente especializado en análisis de moda. Analiza la imagen y:
+        1. Identifica todas las prendas de vestir visibles
+        2. Para cada prenda:
+           a. Proporciona el nombre técnico en español (ej: 'camiseta de manga corta')
+           b. Indica color principal y posibles estampados
+           c. Describe el estilo (ej: casual, formal, deportivo)
+           d. Menciona posibles materiales (si son reconocibles)
+           e. Ten en cuenta que es para realizar una búsqueda en diferentes plataformas online de compras
+        3. Devuelve solo un JSON válido con la estructura:
+           {
+               "busquedas": ['vestido rojo con estampado','pantalones deportivos','zapatos elegantes']
+           }
+        `;
+
+        const payload = {
+            contents: [{
+                role: "user",
+                parts: [
+                    { text: analysisPrompt },
+                    {
+                        inline_data: {
+                            mime_type: "image/jpeg",
+                            data: imageBase64
+                        }
+                    }
+                ]
+            }]
+        };
+
+        const response = await fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData: GeminiResponse = await response.json();
+        const responseText = responseData.candidates[0].content.parts[0].text;
+        
+        const cleanedResponse = responseText
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
+
+        return JSON.parse(cleanedResponse) as ClothingAnalysisResult;
+
+    } catch (error: unknown) {
+        let errorMessage = 'Error desconocido';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        return { 
+            busquedas: [],
+            error: `Error en el análisis: ${errorMessage}`
+        };
+    }
+}
+
+  
 }

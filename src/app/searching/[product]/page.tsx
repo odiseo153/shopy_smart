@@ -8,7 +8,7 @@ import Header from "../../Components/Header";
 import { Product } from "@/app/Interfaces/Products";
 import { useParams } from "next/navigation";
 import { CardGrid } from "@/app/Components/Cards/grid/CardGrid";
-import { ComparationHandler } from "@/app/Handler/ComparationHandler";
+import { IA_Handler } from "@/app/Handler/IA_Handler";
 import ComparationModal from "@/app/Components/ComparationModal";
 import { CardGridSkeleton } from "@/app/Components/skeletons/CardGridSkeleton";
 import ReactPaginate from "react-paginate";
@@ -29,7 +29,7 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10; // Número de productos por página
 
-  const comparation = new ComparationHandler();
+  const comparation = new IA_Handler();
 
   const { product: query } = useParams();
 
@@ -210,7 +210,7 @@ export default function Page() {
             </div>
           ) : (
             <>
-              <div className={view === "grid" ? "p-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4" : "p-2 space-y-4"}>
+              <div className={view === "grid" ? "p-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" : "p-2 space-y-4"}>
                 {currentProducts.map((product, i) =>
                   view === "grid" ? (
                     <CardGrid

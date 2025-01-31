@@ -41,7 +41,7 @@ export default function PlatformsSection() {
   return (
     <section className="mb-12 rounded-lg p-8 bg-gradient-to-r  shadow-xl">
       <h2 className="text-4xl font-extrabold text-gray-900 mb-12 text-center relative">
-        Explore Our Platforms
+        Nuestras Plataformas
         <span className="block w-20 h-1.5 bg-blue-500 mx-auto mt-3 rounded-full"></span>
       </h2>
 

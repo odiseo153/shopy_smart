@@ -1,4 +1,29 @@
-import { faUsers, faMicrophone, faUtensils, faBriefcase, faGlassCheers, faChalkboardTeacher,  faWalking, faHeart, faChurch, faAward, faTshirt, faUmbrellaBeach, faHome, faPlane, faFutbol, faHiking, faFilm, faMoon, faUserTie, faTree, faStar, faSun, faRing, faCrown } from '@fortawesome/free-solid-svg-icons';
+import {
+    faUsers,
+    faMicrophone,
+    faUtensils,
+    faBriefcase,
+    faGlassCheers,
+    faChalkboardTeacher,
+    faWalking,
+    faHeart,
+    faChurch,
+    faAward,
+    faTshirt,
+    faUmbrellaBeach,
+    faHome,
+    faPlane,
+    faFutbol,
+    faHiking,
+    faFilm,
+    faMoon,
+    faUserTie,
+    faTree,
+    faStar,
+    faSun,
+    faRing,
+    faCrown
+} from '@fortawesome/free-solid-svg-icons';
 import { Evento } from '../Interfaces/Evento';
 
 export const Eventos:Evento[] = [

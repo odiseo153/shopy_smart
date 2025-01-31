@@ -11,7 +11,7 @@ import { Autocomplete } from '../Components/AutoComplete';
 import { Trash } from 'lucide-react';
 import { Product } from '../Interfaces/Products';
 import { CardGrid } from '../Components/Cards/grid/CardGrid';
-import { ComparationHandler } from '../Handler/ComparationHandler';
+import { IA_Handler } from '../Handler/IA_Handler';
 import ComparationModal from '../Components/ComparationModal';
 
 interface Recommendation {
@@ -34,7 +34,7 @@ export default function Page() {
   const [comparaciones, setComparaciones] = useState("");
   const [resultadoFinal, setResultadoFinal] = useState("");
 
-  const comparation = new ComparationHandler();
+  const comparation = new IA_Handler();
 
   const fetchData = async (url: string, setData: (data: any) => void) => {
     setIsLoading(true);

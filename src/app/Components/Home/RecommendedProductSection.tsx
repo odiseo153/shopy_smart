@@ -55,7 +55,10 @@ export default function RecommendedProductsSection() {
 
   return (
     <section className="mb-8">
-      <h2 className="text-2xl font-bold mb-4">Products</h2>
+      <h2 className="text-4xl font-extrabold text-gray-900 mb-12 text-center relative">
+       Productos
+        <span className="block w-20 h-1.5 bg-blue-500 mx-auto mt-3 rounded-full"></span>
+      </h2>
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {[...Array(16)].map((_, i) => (
