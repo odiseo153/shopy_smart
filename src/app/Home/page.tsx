@@ -25,7 +25,7 @@ export default function Page() {
         <Suspense fallback={<div>Loading...</div>}>
         <section className="">
           <div className="overflow-hidden rounded-lg ">
-            <FeatureSteps title='Bienvenido a ShopyMart' features={[
+            <FeatureSteps title='Bienvenido a ShopySmart' features={[
               {
                 "step": "1",
                 "title": "Todo en uno",
