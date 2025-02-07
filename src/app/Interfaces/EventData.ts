@@ -5,3 +5,4 @@ export interface EventData {
     descripcion_hombres: string;
     descripcion_mujeres: string;
   }
+  

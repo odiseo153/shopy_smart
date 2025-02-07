@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Aquí tienes el README actualizado con el nombre **Shopy Smart** y manteniendo la estructura bien organizada:  
 
-## Getting Started
+---
 
-First, run the development server:
+# **Shopy Smart**  
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+![Home](src/app/favicon.ico)  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Shopy Smart** es una aplicación revolucionaria diseñada para optimizar la experiencia de compra en línea. Su propósito principal es permitir a los usuarios buscar y comparar productos de múltiples plataformas en un solo lugar, asegurando que encuentren la mejor opción según sus necesidades, precios y características.  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+La aplicación incorpora una avanzada inteligencia artificial que actúa como asistente personal, guiando a los usuarios en sus decisiones de compra, especialmente cuando no están seguros de qué elegir. Con una interfaz moderna y fácil de usar, **Shopy Smart** transforma la manera en que las personas compran en línea, haciéndolo más eficiente, rápido y completamente personalizado.  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## **Características principales**  
 
-## Learn More
+✅ **Búsqueda y comparación de productos**: Accede a una amplia gama de productos de diversas plataformas y compara precios, características y opiniones en un solo lugar.  
+✅ **Asistente de compras con IA**: Recibe recomendaciones personalizadas y asesoramiento en tiempo real para tomar decisiones de compra informadas.  
+✅ **Interfaz intuitiva**: Diseño limpio y moderno que facilita la navegación y mejora la experiencia del usuario.  
+✅ **Reseñas y valoraciones**: Consulta opiniones de otros usuarios para asegurarte de la calidad y satisfacción del producto antes de comprar.  
 
-To learn more about Next.js, take a look at the following resources:
+## **Instalación**  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para instalar **Shopy Smart**, sigue estos pasos:  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Requisitos previos**:  
+   - Asegúrate de tener [Node.js](https://nodejs.org/) y [npm](https://www.npmjs.com/) instalados en tu sistema.  
 
-## Deploy on Vercel
+2. **Clonar el repositorio**:  
+   ```bash
+   git clone https://github.com/odiseo153/shopy_smart.git
+   cd shopy-smart
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Instalar dependencias**:  
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Configurar variables de entorno**:  
+   - Crea un archivo `.env.local` en la raíz del proyecto y añade las variables necesarias, como las claves de las API que utilizará la aplicación.  
+
+5. **Iniciar la aplicación**:  
+   ```bash
+   npm run dev
+   ```
+   - La aplicación estará disponible en `http://localhost:3000`.  
+
+## **Uso**  
+
+Una vez que la aplicación esté en funcionamiento, podrás:  
+
+🔍 Buscar productos utilizando la barra de búsqueda.  
+🛍️ Comparar diferentes opciones y filtrar según tus preferencias.  
+🤖 Recibir recomendaciones personalizadas del asistente de IA.  
+
+## **Contribución**  
+
+Si deseas contribuir al desarrollo de **Shopy Smart**, por favor:  
+
+1. Haz un fork del repositorio.  
+2. Crea una nueva rama para tu función o corrección:  
+   ```bash
+   git checkout -b nombre-rama
+   ```
+3. Realiza tus cambios y haz commit:  
+   ```bash
+   git commit -m 'Descripción de los cambios'
+   ```
+4. Envía tus cambios al repositorio remoto:  
+   ```bash
+   git push origin nombre-rama
+   ```
+5. Abre una **Pull Request** describiendo tus modificaciones.  
+
+## **Licencia**  
+
+Este proyecto está bajo la **Licencia MIT**. Para más detalles, consulta el archivo [LICENSE](LICENSE).  
+
+## **Contacto**  
+
+Para preguntas o soporte, puedes contactarnos en [odiseorincon@gmail.com](mailto:odiseorincon@gmail.com).  
+
+---
+
+### **Capturas de pantalla**  
+
+#### 📌 Pantalla de inicio  
+![Pantalla de inicio](images/app.png)  
+
+#### 📌 Pantalla de productos  
+![Pantalla de productos](images/products.png)  
+
+--- 
+
+*Las imágenes anteriores son representaciones de la interfaz de usuario de **Shopy Smart** y están sujetas a cambios en futuras versiones.*  
+
+---
+
+Si necesitas algún otro ajuste o mejora en el README, dime y lo modificamos. 🚀

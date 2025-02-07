@@ -38,6 +38,7 @@ class ProductsHandler {
             product_title: title,
             product_price: price,
             product_url: link || '',
+            product_star_rating:5,
             brand: 'ebay',
             icon: 'https://w7.pngwing.com/pngs/622/371/png-transparent-ebay-logo-ebay-sales-amazon-com-coupon-online-shopping-ebay-logo-text-logo-number.png',
           });
@@ -118,7 +119,12 @@ class ProductsHandler {
     const url = `https://www.gearbest.ma/?s=${search}&post_type=product&product_cat=`;
 
     try {
-      const response = await axios.get(url, { headers: this.headers });
+      const response = await axios.get(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        },
+      });
 
       if (response.status !== 200) {
         console.error(`Error al hacer la solicitud: ${response.status}`);
@@ -128,22 +134,24 @@ class ProductsHandler {
       const $ = cheerio.load(response.data);
       const products: Product[] = [];
 
-      $('div.product').each((_, element) => {
-        const title = $(element)
-          .find('h3.flowhidden.mb10.fontnormal.position-relative')
-          .text()
-          .trim();
-        const price = $(element).find('span.price').text().trim();
-        const link = $(element).find('a').attr('href');
-        const imgTag = $(element).find('img[data-src]').attr('data-src');
+      $("div.product").each((_, element) => {
+        const title = $(element).find("h3 a").text().trim() || "N/A";
+        const price = $(element).find("span.price").text().trim() || "N/A";
+        const link = $(element).find("a").attr("href") || "N/A";
+        const imgTag = $(element).find("img[data-src]").attr("data-src") || "N/A";
+
+        // Obtener la cantidad de estrellas activas
+        const ratingStars = $(element).find("div.rh_woo_star span.active").length;
+        const rating = ratingStars;
 
         products.push({
-          product_title: title || 'N/A',
-          product_price: price || 'N/A',
-          product_url: link || 'N/A',
-          brand: 'gearbest',
-          icon: 'https://www.gearbest.ma/wp-content/uploads/2023/12/favicon-gearbest-100x100.ico',
-          product_photo: imgTag || 'N/A',
+          product_title: title,
+          product_price: price,
+          product_url: link,
+          brand: "gearbest",
+          icon: "https://www.gearbest.ma/wp-content/uploads/2023/12/favicon-gearbest-100x100.ico",
+          product_photo: imgTag,
+          product_star_rating: rating,
         });
       });
 
@@ -153,6 +161,7 @@ class ProductsHandler {
       return [];
     }
   }
+
 
   async getProductsRomwe(search: string): Promise<Product[]> {
     const url = `https://es.romwe.com/pdsearch/${search}`;
@@ -220,10 +229,12 @@ class ProductsHandler {
         const price = $(element).find('span[aria-hidden="true"]').text().trim();
         const link = $(element).find('a').attr('href');
         const image = $(element).find('img.product-image').attr('src');
+        const review = $(element).find('span.c-reviews').text().trim();
 
         products.push({
           product_title: title || 'N/A',
           product_price: price || 'N/A',
+          product_star_rating: review,
           product_url: link ? `https://www.bestbuy.com${link}` : 'N/A',
           brand: 'bestbuy',
           icon: 'https://cdn.dribbble.com/users/1399110/screenshots/15908208/best_buy_refresh.png',
@@ -371,12 +382,19 @@ class ProductsHandler {
           const productPrice = $(container).find('div.price').text().trim() || 'Precio no disponible';
           const productImageUrl = $(container).find('meta').attr('content')?.trim() || 'URL de imagen no disponible';
           const productLink = $(container).find('a').attr('href')?.trim() || 'Enlace no disponible';
+          const stars = $(container).find(
+            ".product-tile__rating__stars--filled"
+          );
+          const rating = stars.find("svg").length;
+
+          console.log(productPrice)
 
           products.push({
             product_title: productName,
             product_price: productPrice,
             product_url: productLink.startsWith('http') ? productLink : `https://www.patagonia.com${productLink}`,
             product_photo: productImageUrl,
+            product_star_rating: rating,
             brand: 'patagonia',
             icon: 'https://i.pinimg.com/736x/5e/5d/f8/5e5df87c306b242fc92186f2dabc892b.jpg',
           });

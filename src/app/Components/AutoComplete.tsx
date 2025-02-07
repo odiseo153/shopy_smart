@@ -42,7 +42,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({ eventos, onSelect })
 
 
   return (
-    <div className="relative">
+    <div className="relative ">
       <input
         type="text"
         value={search}

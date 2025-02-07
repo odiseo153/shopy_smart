@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { SortBar } from '../Components/SortBar';
-import { Loading } from '../Components/Loading';
 import { Input } from '../Components/Input';
 import Header from '../Components/Header';
 import { Eventos } from '../Data/Events';
@@ -13,11 +12,13 @@ import { Product } from '../Interfaces/Products';
 import { CardGrid } from '../Components/Cards/grid/CardGrid';
 import { IA_Handler } from '../Handler/IA_Handler';
 import ComparationModal from '../Components/ComparationModal';
+import { CardGridSkeleton } from '../Components/skeletons/CardGridSkeleton';
+import { RecommendationScraper } from '../Handler/Recomendation';
+
 
 interface Recommendation {
-  recommendation_text: string;
-  products: Record<string, any[]>;
-  additional_info: string;
+  vestimentas:{[key:string]:Product[]};
+  por_que: string;
 }
 
 export default function Page() {
@@ -33,6 +34,7 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [comparaciones, setComparaciones] = useState("");
   const [resultadoFinal, setResultadoFinal] = useState("");
+  const [userDesc, setUserDesc] = useState("soy una persona morena y soy confiado de mi mismo y voy a una boda");
 
   const comparation = new IA_Handler();
 
@@ -54,18 +56,30 @@ export default function Page() {
 
   const handleSearch = async () => {
     if (search.trim()) {
-      console.log(search,gender)
-      const data =await fetchData(`/api/recomendation/${encodeURIComponent(search)}/${gender}`, setProductsApi);
-    return data;
+      console.log(search, gender)
+      const data = await fetchData(`/api/recomendation/${encodeURIComponent(search)}/${gender}`, setProductsApi);
+      return data;
     }
   };
 
-  
-  const handleSearchRecomendation = async () => {
-    if (search.trim()) {
-      return await fetchData(`/api/recomendation-ia/${encodeURIComponent(search)}/${gender}`, setRecomendationDescripcionUser);
+
+  const getRecomendationUserDesc = async () => {
+    if (userDesc.trim()) {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/recomendation-ia/${encodeURIComponent(userDesc)}`);
+        const data = await response.json();
+        setRecomendationDescripcionUser(data);
+        setProductsApi(data.vestimentas); // ✅ Guardar las vestimentas en el estado de productos
+        setActiveFilters([]); // Resetear filtros
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+  
 
   const getRandomRecomendation = () => {
     if (productsApi) {
@@ -94,13 +108,20 @@ export default function Page() {
     setIsModalOpen(true);
   };
 
+
   const renderSection = (title: string, products: any[]) => (
     <div key={title} className="mb-8 mt-3 p-3">
       <div className="flex p-4 rounded-lg bg-gradient-to-r from-green-500 to-teal-400 text-white flex-col items-center text-2xl font-bold shadow-lg mb-6">
         <h1>{title}</h1>
       </div>
       <div className={view === 'grid' ? 'grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6' : 'space-y-4'}>
-        {products.map((product, index) => view === 'grid' ? <CardGrid key={index} product={product} isSelected={selectedProducts.some(p => p.product_url === product.product_url)} onSelect={handleSelectProduct} /> : <CardList key={index} product={product} />)}
+        {isLoading ?
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {[...Array(10)].map((_, i) => (
+              <CardGridSkeleton key={i} />
+            ))}
+          </div>
+          : products.map((product, index) => view === 'grid' ? <CardGrid key={index} product={product} isSelected={selectedProducts.some(p => p.product_url === product.product_url)} onSelect={handleSelectProduct} /> : <CardList key={index} product={product} />)}
       </div>
     </div>
   );
@@ -109,19 +130,32 @@ export default function Page() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="bg-gray-100 py-4 shadow-sm">
+
         <SortBar view={view} onViewChange={setView}>
           <div className="flex flex-wrap items-center gap-4 px-4">
-            <Input onChange={(e) => setSearch(e.target.value)} placeholder="Describe tus características físicas" className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-4 py-2" />
-            <Autocomplete eventos={Eventos} onSelect={setSearch} />
-            <button onClick={handleSearch} disabled={search.length < 2} className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition focus:outline-none">Buscar</button>
+            <div>
+              <label htmlFor="event-autocomplete">Dime a donde asistirás</label>
+              <Autocomplete eventos={Eventos} onSelect={setSearch} />
+            </div>
+            <hr className="" />
+            <div>
+              <label htmlFor="event-autocomplete">O describe tu estilo</label>
+              <Input placeholder="Ej: busco un vestido elegante para una boda" onChange={(e) => setUserDesc(e.target.value)} />
+            </div>
+
+            <button onClick={handleSearch} hidden={search.length < 4} className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition focus:outline-none">Obtener Recomendación</button>
             <button onClick={getRandomRecomendation} hidden={!productsApi} className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition focus:outline-none">No sé qué elegir</button>
+            <button onClick={getRecomendationUserDesc} className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition focus:outline-none">probar</button>
+
             <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" onChange={(e) => setGender(e.target.value)}>
               <option value="hombres">Hombre</option>
               <option value="mujeres">Mujer</option>
             </select>
+
           </div>
         </SortBar>
       </div>
+
 
       <div className="w-screen py-7 px-4 flex flex-wrap gap-6">
         {productsApi && (
@@ -138,12 +172,8 @@ export default function Page() {
           </aside>
         )}
         <main className="flex-1">
-          {isLoading && <Loading />}
           {!RecomendationDescripcionUser && !productsApi && !isLoading && (
-            <div className="text-center mt-16">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">¡Selecciona un evento!</h1>
-              <p className="text-gray-600">Recibe recomendaciones personalizadas sobre qué usar en tu próximo evento o basadas en tu descripción física.</p>
-            </div>
+            <TextDefault />
           )}
           {randomRecomendation.length > 0 && (
             <section className="mt-8">
@@ -152,11 +182,19 @@ export default function Page() {
                 <button onClick={() => setRandomRecomendation([])} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"><Trash /></button>
               </div>
               <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" : "space-y-4"}>
-                {randomRecomendation.map((product, index) => view === "grid" ? <CardGrid key={index} product={product} isSelected={selectedProducts.some(p => p.product_url === product.product_url)} onSelect={handleSelectProduct} /> : <CardList key={index} product={product} />)}
+                {isLoading ?
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {[...Array(10)].map((_, i) => (
+                      <CardGridSkeleton key={i} />
+                    ))}
+                  </div>
+                  : randomRecomendation.map((product, index) => view === "grid" ? <CardGrid key={index} product={product} isSelected={selectedProducts.some(p => p.product_url === product.product_url)} onSelect={handleSelectProduct} /> : <CardList key={index} product={product} />)}
               </div>
             </section>
           )}
-          {!isLoading && RecomendationDescripcionUser && Object.entries(RecomendationDescripcionUser?.products || {}).map(([key, products]) => renderSection(key, products))}
+         {!isLoading && RecomendationDescripcionUser && Object.entries(RecomendationDescripcionUser.vestimentas || {}).map(([key, products]) => 
+  renderSection(key, products)
+)}
           {!isLoading && productsApi && !RecomendationDescripcionUser && Object.entries(getFilteredProducts() || {}).map(([key, products]) => renderSection(key, products))}
         </main>
       </div>
@@ -170,4 +208,17 @@ export default function Page() {
       )}
     </div>
   );
+}
+
+
+
+const TextDefault = () => {
+
+  return (
+    <div className="text-center mt-1 flex flex-col items-center"> {/* Added flexbox for centering */}
+      <img src="https://spotme.com/wp-content/uploads/2020/07/Hero-1.jpg" alt="Empty State" className="h-32 rounded-full  mx-auto mb-4" /> {/* Add an illustrative image */}
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">¡Selecciona un evento o describe tu estilo!</h1>
+      <p className="text-gray-600 text-2xl mb-6">Recibe recomendaciones personalizadas sobre qué usar en tu próximo evento o basadas en tu descripción física.  ¡Comienza ahora!</p>
+    </div>
+  )
 }

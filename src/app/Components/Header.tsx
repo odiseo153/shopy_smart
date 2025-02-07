@@ -16,7 +16,6 @@ export default function Header() {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
-  const toggleUserMenu = () => setIsUserMenuOpen((prev) => !prev);
 
   const searchProduct = async () => {
     if (search.trim()) {
@@ -125,7 +124,6 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Recommendations Link */}
           <div className="flex items-center space-x-4 sm:space-x-6 mt-4 sm:mt-0">
             <Link href="/recomendation" className="flex items-center text-gray-800 hover:text-green-500 font-medium transition text-sm sm:text-base">
               <Bot className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />

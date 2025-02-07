@@ -54,7 +54,6 @@ export const CardGrid: React.FC<ProductProps> = ({ product, isSelected, onSelect
           </div>
         </div>
 
-        {/* Product Title */}
         <Link
           href={product?.product_url}
           target="_blank"
@@ -63,19 +62,24 @@ export const CardGrid: React.FC<ProductProps> = ({ product, isSelected, onSelect
         >
           {product?.product_title}
         </Link> 
+{product.product_star_rating && (
+  typeof product.product_star_rating === 'number' ? (
+    <div className="mt-1 flex items-center">
+      {[...Array(product.product_star_rating)].map((_, i) => (
+        <FontAwesomeIcon
+          key={i}
+          icon={faStar}
+          className="h-4 w-4 text-yellow-400"
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="mt-1">
+      <span className="text-gray-800 text-sm">{product.product_star_rating}</span>
+    </div>
+  )
+)}
 
-        {/* Rating */}
-        <div className="mt-1 flex items-center"> {/* Reduced margin */}
-          {[...Array(5)].map((_, i) => (
-            <FontAwesomeIcon
-              key={i}
-              icon={faStar}
-              className="h-4 w-4 text-yellow-400"
-            />
-          ))}
-        </div>
-
-        {/* Price */}
         <div className="mt-2 flex items-center justify-between"> {/* Reduced margin */}
           <span className="text-lg font-bold text-gray-900">
             {product?.product_price}
