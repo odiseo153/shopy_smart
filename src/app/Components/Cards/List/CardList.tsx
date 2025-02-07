@@ -74,7 +74,8 @@ export const CardList: React.FC<ProductProps> = ({ product, isSelected, onSelect
           {product?.product_title}
         </a>
 
-        {/* Rating */}
+        {/* Rating
+        
         <div className="mt-2 flex items-center">
           {[...Array(5)].map((_, i) => (
             <FontAwesomeIcon
@@ -94,6 +95,7 @@ export const CardList: React.FC<ProductProps> = ({ product, isSelected, onSelect
             ({product?.product_star_rating || 455})
           </span>
         </div>
+            */}
 
         {/* Price */}
         <div className="mt-4">
