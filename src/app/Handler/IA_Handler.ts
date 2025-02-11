@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 
 dotenv.config();
 
-const api_key_deepseek = process.env.NEXT_PUBLIC_API_URL; 
+const api_key_deepseek = process.env.NEXT_PUBLIC_API_URL_DEEPSEEK; 
 const API_KEY_GEMINIS = process.env.NEXT_PUBLIC_API_URL_GEMINIS; 
 
 

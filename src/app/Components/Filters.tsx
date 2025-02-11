@@ -2,6 +2,10 @@
 
 import { TimerResetIcon } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import Image from 'next/image';
 
 interface FilterSection {
   title: string;
@@ -43,46 +47,50 @@ export function Filters({ onPlatformChange, onPriceChange, options, prices }: Fi
     <div className="max-w-full md:w-64 bg-white p-6 border border-gray-300 shadow-lg rounded-lg flex flex-col space-y-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Filtros</h2>
-        <button onClick={resetFilters} className="py-2 px-3 bg-gray-50 text-gray-800 font-medium rounded-md hover:bg-gray-100 transition">
-          <TimerResetIcon />
-        </button>
+        <Button variant="outline" size="sm" onClick={resetFilters}>
+          <TimerResetIcon className="mr-2 h-4 w-4" />
+          Resetear
+        </Button>
       </div>
       {filterSections.map(({ title, options }) => (
         <div key={title} className="w-full border-b border-gray-200 pb-4">
-          <button
+          <Button
+            variant="ghost"
+            className="w-full justify-between px-3 rounded-md hover:bg-gray-100 transition"
             onClick={() => toggleSection(title)}
-            className="w-full flex justify-between items-center py-2 px-3 bg-gray-50 text-gray-800 font-medium rounded-md hover:bg-gray-100 transition"
           >
             <span className="text-base">{title}</span>
             <span className="text-lg font-bold">{expandedSections.includes(title) ? "−" : "+"}</span>
-          </button>
+          </Button>
           {expandedSections.includes(title) && (
-            <div className="mt-3 space-y-3 pl-4">
+            <RadioGroup
+              defaultValue={title === "Precios" ? selectedPrice : selectedPlatform}
+              className="mt-3 space-y-2"
+              onValueChange={(value) => {
+                if (title === "Precios") {
+                  setSelectedPrice(value);
+                  onPriceChange(value);
+                } else {
+                  setSelectedPlatform(value);
+                  onPlatformChange(value);
+                }
+              }}
+            >
               {["all", ...options].map((option, i) => (
-                <label
-                  key={i}
-                  className="flex items-center space-x-2 text-gray-800 hover:text-blue-600 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name={title}
-                    value={option}
-                    checked={option === (title === "Precios" ? selectedPrice : selectedPlatform)}
-                    onChange={() => {
-                      if (title === "Precios") {
-                        setSelectedPrice(option);
-                        onPriceChange(option);
-                      } else {
-                        setSelectedPlatform(option);
-                        onPlatformChange(option);
-                      }
-                    }}
-                    className="text-blue-600 focus:ring focus:ring-blue-500 focus:ring-opacity-50 rounded"
-                  />
-                  <span className="text-sm capitalize">{option}</span>
-                </label>
+                <div key={i} className="pl-4">
+                  <RadioGroupItem value={option} id={`${title}-${option}`} className="peer sr-only" />
+                  <label
+                    htmlFor={`${title}-${option}`}
+                    className={cn(
+                      "peer-checked:text-blue-600 peer-checked:font-semibold flex items-center space-x-2 text-gray-800 hover:text-blue-600 cursor-pointer rounded-md p-2",
+                      )}
+                  >
+                    
+                    <span className="text-sm capitalize">{option}</span>
+                  </label>
+                </div>
               ))}
-            </div>
+            </RadioGroup>
           )}
         </div>
       ))}

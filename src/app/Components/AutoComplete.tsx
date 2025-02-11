@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Evento } from "../Interfaces/Evento";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Input } from "@/components/ui/input";
 
 interface AutocompleteProps {
   eventos: Evento[];
@@ -43,7 +44,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({ eventos, onSelect })
 
   return (
     <div className="relative ">
-      <input
+      <Input
         type="text"
         value={search}
         onChange={handleInputChange}

@@ -1,91 +1,62 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Product } from "../../../Interfaces/Products";
 import Link from 'next/link';
-import { Input } from "../../Input";
+import Image from 'next/image';
+import { Star } from "lucide-react";
+import React from "react";
 
 interface ProductProps {
   product: Product;
-  isSelected: boolean; // Indicates if the product is selected
-  onSelect: (product: Product) => void; // Handles product selection
+  isSelected: boolean;
+  onSelect: (product: Product) => void;
 }
 
 export const CardGrid: React.FC<ProductProps> = ({ product, isSelected, onSelect }) => {
   return (
-    <div className="max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-      {/* Radio Button */}
-      <div className="mb-4">
-        <Input
-          type="checkbox"
+    <Card className="max-w-sm shadow-md transition-transform duration-300 hover:scale-105">
+      <CardHeader className="flex flex-col items-start gap-2">
+        <Checkbox
           checked={isSelected}
-          onChange={() => onSelect(product)}
-          className="h-5 w-5 cursor-pointer accent-blue-500" // Added accent color
+          onCheckedChange={() => onSelect(product)}
+          aria-label={`Select ${product.product_title} for comparison`}
+          className="self-end"
         />
-      </div>
-
-      {/* Product Image */}
-      <div className="relative h-64 w-full overflow-hidden rounded-lg"> {/* Increased height */}
-        <Link href={product?.product_url} target="_blank" rel="noopener noreferrer">
-          <img
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-            src={product?.product_photo}
-            alt={product?.product_title || "Product"}
-            loading="lazy"
-          />
-        </Link>
-      </div>
-
-      {/* Product Information */}
-      <div className="pt-4">
-        {/* Brand and Icon */}
-        <div className="flex items-center justify-between mb-2"> {/* Reduced margin */}
-          <div className="flex items-center gap-2"> {/* Reduced gap */}
-            <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200"> {/* Reduced size */}
-              <img
-                src={product?.icon}
-                className="h-6 w-6 object-contain"
-                alt={`${product?.brand} logo`}
-                loading="lazy"
-              />
-            </div>
-            <span className="font-medium text-gray-800 text-sm"> {/* Added text-sm */}
-              {product?.brand}
-            </span>
+        <div className="flex items-center gap-2">
+          {product?.icon && (
+            <Image src={product.icon} alt={`${product.brand} icon`} width={32} height={32}   className="" unoptimized />
+          )}
+          < CardTitle className="line-clamp-3">{product?.product_title}</CardTitle >
+        </div>
+        < CardDescription className="line-clamp-1 text-sm text-gray-500">{product?.brand}</CardDescription >
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="relative h-56 w-full overflow-hidden rounded-md">
+          <Link href={product?.product_url} target="_blank" rel="noopener noreferrer">
+            <Image src={product.product_photo} alt={product.product_title} fill sizes="(max-width: 768px) 100vw, 768px" unoptimized  style={{ objectFit: 'cover' }} className="h-full w-full object-contain transition-transform duration-500 hover:scale-110" />
+          </Link>
+        </div>
+        <Separator className="my-3" />
+        <div className="flex items-center justify-between">
+          <Badge variant="secondary">{product?.brand}</Badge>
+          <span className="text-lg font-semibold text-gray-900">{product?.product_price}</span>
+        </div>
+        {product.product_star_rating && (
+          <div className="mt-2 flex items-center gap-1">
+            {typeof product.product_star_rating === 'number' ? (
+              <>
+                {[...Array(product.product_star_rating)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-yellow-400" />
+                ))}
+              </>
+            ) : (
+              <span className="text-gray-800 text-sm">{product.product_star_rating}</span>
+            )}
           </div>
-        </div>
-
-        <Link
-          href={product?.product_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block line-clamp-2 text-xl text-gray-900 hover:underline font-medium" 
-        >
-          {product?.product_title}
-        </Link> 
-{product.product_star_rating && (
-  typeof product.product_star_rating === 'number' ? (
-    <div className="mt-1 flex items-center">
-      {[...Array(product.product_star_rating)].map((_, i) => (
-        <FontAwesomeIcon
-          key={i}
-          icon={faStar}
-          className="h-4 w-4 text-yellow-400"
-        />
-      ))}
-    </div>
-  ) : (
-    <div className="mt-1">
-      <span className="text-gray-800 text-sm">{product.product_star_rating}</span>
-    </div>
-  )
-)}
-
-        <div className="mt-2 flex items-center justify-between"> {/* Reduced margin */}
-          <span className="text-lg font-bold text-gray-900">
-            {product?.product_price}
-          </span>
-        </div>
-      </div>
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

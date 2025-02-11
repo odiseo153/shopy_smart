@@ -1,6 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button" // Assuming Button is located here, adjust path if needed
 
 export const Carousel = () => {
   const images = [
@@ -38,9 +40,11 @@ export const Carousel = () => {
       >
         <div className="flex h-full">
           {images.map((img, index) => (
-            <img
+            <Image
               key={index}
               src={img}
+              width={50}
+              height={50}
               alt={`Slide ${index + 1}`}
               className="w-full h-full object-cover flex-shrink-0"
             />
@@ -49,27 +53,30 @@ export const Carousel = () => {
       </div>
 
       {/* Navigation Buttons */}
-      <button
+      <Button
         onClick={previousImage}
+        variant="outline"
         className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 text-white p-4 rounded-full hover:bg-black/90 transition-transform transform hover:scale-110"
         aria-label="Previous Slide"
       >
         &#10094;
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={nextImage}
+        variant="outline"
         className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 text-white p-4 rounded-full hover:bg-black/90 transition-transform transform hover:scale-110"
         aria-label="Next Slide"
       >
         &#10095;
-      </button>
+      </Button>
 
       {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3">
         {images.map((_, index) => (
-          <button
+          <Button
             key={index}
             onClick={() => setCurrentImage(index)}
+            variant="outline"
             className={`w-4 h-4 rounded-full border-2 transition-transform transform ${
               currentImage === index
                 ? 'bg-white scale-110 border-white'

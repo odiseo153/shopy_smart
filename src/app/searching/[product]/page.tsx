@@ -204,9 +204,12 @@ export default function Page() {
         ))}
           </div>
           ) : !products.length ? (  
-            <div className="text-center text-gray-600">
-              No products found.
-              
+            <div className="text-center text-gray-700 py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 mx-auto mb-2 text-gray-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.375 1.943 3.375h14.71c1.725 0 2.81-.875 1.943-3.375L12.7 9.75a1.5 1.5 0 00-2.4 0l-9.303 12.75z" />
+              </svg>
+              <p className="text-lg font-semibold">No products found</p>
+              <p className="text-sm text-gray-500">Please adjust your filters or search criteria.</p>
             </div>
           ) : (
             <>

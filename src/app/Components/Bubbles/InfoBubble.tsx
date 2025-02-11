@@ -1,3 +1,13 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 
 
 export const InfoBubble = ({
@@ -8,14 +18,14 @@ export const InfoBubble = ({
     onClose: () => void;
   }) => {
     if (!isOpen) return null;
-  
+
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            Sobre ShopyMart
-          </h2>
-          <div className="text-sm text-gray-600 mb-4 space-y-3">
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Sobre ShopyMart</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="space-y-3">
             <p>
               ShopMate es una aplicación revolucionaria diseñada para optimizar tu experiencia de compra en línea.
             </p>
@@ -31,16 +41,13 @@ export const InfoBubble = ({
             <p>
               Con ShopyMart, transformamos tu experiencia de compra haciéndola más eficiente, rápida y completamente personalizada.
             </p>
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition"
-            >
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="ghost" onClick={onClose}>
               Entendido
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     );
   };

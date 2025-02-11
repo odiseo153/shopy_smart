@@ -1,6 +1,3 @@
-Aquí tienes el README actualizado con el nombre **Shopy Smart** y manteniendo la estructura bien organizada:  
-
----
 
 # **Shopy Smart**  
 
@@ -92,7 +89,3 @@ Para preguntas o soporte, puedes contactarnos en [odiseorincon@gmail.com](mailto
 --- 
 
 *Las imágenes anteriores son representaciones de la interfaz de usuario de **Shopy Smart** y están sujetas a cambios en futuras versiones.*  
-
----
-
-Si necesitas algún otro ajuste o mejora en el README, dime y lo modificamos. 🚀

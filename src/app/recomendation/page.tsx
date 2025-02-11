@@ -13,11 +13,12 @@ import { CardGrid } from '../Components/Cards/grid/CardGrid';
 import { IA_Handler } from '../Handler/IA_Handler';
 import ComparationModal from '../Components/ComparationModal';
 import { CardGridSkeleton } from '../Components/skeletons/CardGridSkeleton';
-import { RecommendationScraper } from '../Handler/Recomendation';
+import Image from 'next/image';
+
 
 
 interface Recommendation {
-  vestimentas:{[key:string]:Product[]};
+  vestimentas: { [key: string]: Product[] };
   por_que: string;
 }
 
@@ -79,7 +80,7 @@ export default function Page() {
       }
     }
   };
-  
+
 
   const getRandomRecomendation = () => {
     if (productsApi) {
@@ -192,9 +193,9 @@ export default function Page() {
               </div>
             </section>
           )}
-         {!isLoading && RecomendationDescripcionUser && Object.entries(RecomendationDescripcionUser.vestimentas || {}).map(([key, products]) => 
-  renderSection(key, products)
-)}
+          {!isLoading && RecomendationDescripcionUser && Object.entries(RecomendationDescripcionUser.vestimentas || {}).map(([key, products]) =>
+            renderSection(key, products)
+          )}
           {!isLoading && productsApi && !RecomendationDescripcionUser && Object.entries(getFilteredProducts() || {}).map(([key, products]) => renderSection(key, products))}
         </main>
       </div>
@@ -216,7 +217,7 @@ const TextDefault = () => {
 
   return (
     <div className="text-center mt-1 flex flex-col items-center"> {/* Added flexbox for centering */}
-      <img src="https://spotme.com/wp-content/uploads/2020/07/Hero-1.jpg" alt="Empty State" className="h-32 rounded-full  mx-auto mb-4" /> {/* Add an illustrative image */}
+      <Image src="https://spotme.com/wp-content/uploads/2020/07/Hero-1.jpg" alt="Empty State" className="h-32 rounded-full  mx-auto mb-4" /> {/* Add an illustrative image */}
       <h1 className="text-2xl font-bold text-gray-800 mb-4">¡Selecciona un evento o describe tu estilo!</h1>
       <p className="text-gray-600 text-2xl mb-6">Recibe recomendaciones personalizadas sobre qué usar en tu próximo evento o basadas en tu descripción física.  ¡Comienza ahora!</p>
     </div>

@@ -5,10 +5,10 @@ import ProductsHandler from './ProductsHandler';
 import { conjuntos_por_evento } from './data';
 
 
-const api_key_deepseek = process.env.NEXT_PUBLIC_API_URL; // Reemplázalo con tu clave de API
+const api_key_deepseek = process.env.NEXT_PUBLIC_API_URL_DEEPSEEK; // Reemplázalo con tu clave de API
 
 if (!api_key_deepseek) {
-  throw new Error("La variable de entorno NEXT_PUBLIC_API_URL no está definida.");
+  throw new Error("La variable de entorno NEXT_PUBLIC_API_URL_DEEPSEEK no está definida.");
 }
 
 const openai = new OpenAI({

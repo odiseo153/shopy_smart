@@ -9,6 +9,10 @@ import { Bubble } from '../Components/Bubbles/Bubble';
 import { FeatureSteps } from '@/components/blocks/feature-section';
 import { Suspense } from 'react';
 import ShopMateDescription from '../Components/Home/ShopMateDescription';
+import Hero from '../Components/Home/Hero';
+import HowItWorks from '../Components/Home/ShopMateDescription';
+import Testimonials from '../Components/Home/Testimonial';
+import Footer from '../Components/Home/Footer';
 
 
 export default function Page() {
@@ -16,65 +20,48 @@ export default function Page() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <Header />
-      <Bubble />
 
-
-
-      <main className="container mx-auto px-4 py-8">
+      <main className="  ">
         {/* Hero Section */}
-        <Suspense fallback={<div>Loading...</div>}>
-        <section className="">
-          <div className="overflow-hidden rounded-lg ">
-            <FeatureSteps title='Bienvenido a ShopySmart' features={[
-              {
-                "step": "1",
-                "title": "Todo en uno",
-                "content": "No tienes que andar de plataforma en plataforma buscando el mejor precio, aquí lo encuentras",
-                'image': "https://fal.media/files/panda/ufZvyywJxR93m9kX-pZ-Y.png"
-              },
-              {
-                "step": "2",
-                "title": "Comparador de precios",
-                "content": "Compara precios entre diferentes tiendas y encuentra la mejor oferta",
-                'image': "https://fal.media/files/panda/kHalwAFqqrWta85dZCsk1.png"
-              },
-              {
-                "step": "3",
-                "title": "Alertas de precio",
-                "content": "Recibe notificaciones cuando los productos que te interesan bajen de precio",
-                'image': "https://fal.media/files/koala/07CbIaggmjhTP99SiIYkV.png"
-              },
-              {
-                "step": "4",
-                "title": "Historial de precios",
-                "content": "Visualiza el histórico de precios para tomar mejores decisiones de compra",
-                'image': "https://fal.media/files/lion/reCauHfTknkQPKSozxgCT.png"
-              }
-            ]} />
-          </div>
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+          <Hero />
+
+          </Suspense>
         </section>
-        </Suspense>
 
-        {/* Categories */}
-        <Suspense fallback={<div>Loading...</div>}>
-        <ShopMateDescription />
-        </Suspense>
-        
-        <Suspense fallback={<div>Loading...</div>}>
-        <CategoriesSection />
-        </Suspense>
+        {/* Categories Section */}
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+            <HowItWorks />
+          </Suspense>
+        </section>
 
-        {/* Recommended Products */}
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+            <CategoriesSection />
+          </Suspense>
+        </section>
 
-        {/* Trending Now */}
-        <Suspense fallback={<div>Loading...</div>}>
-        <PlatformsSection />
-        </Suspense>
+        {/* Platforms Section */}
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+            <PlatformsSection />
+          </Suspense>
+        </section>
 
-        {/* Promotions */}
-        <Suspense fallback={<div>Loading...</div>}>
-        <RecommendedProductsSection />
-        </Suspense>
+        {/* Recommended Products Section */}
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Testimonials />
+          </Suspense>
+        </section>
+
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Footer />
+          </Suspense>
+        </section>
       </main>
 
       {/* Footer */}

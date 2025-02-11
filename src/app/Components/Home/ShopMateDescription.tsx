@@ -1,44 +1,46 @@
-export default function ShopMateDescription() {
+import { CheckCircle } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+
+export default function HowItWorks() {
+  const steps = [
+    {
+      title: "Regístrate",
+      description: "Crea tu cuenta en segundos y personaliza tus preferencias de compra.",
+    },
+    {
+      title: "Explora",
+      description: "Navega por miles de productos de tus tiendas favoritas en un solo lugar.",
+    },
+    {
+      title: "Recibe recomendaciones",
+      description: "Nuestra IA analiza tu físico y te sugiere los mejores productos.",
+    },
+    {
+      title: "Compra con confianza",
+      description: "Realiza tus compras de forma segura y ahorra tiempo y dinero.",
+    },
+  ]
+
   return (
-    <div className="bg-gradient-to-r from-green-50 to-blue-50 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto text-center">
-        {/* Título con animación sutil */}
-        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6 animate-fade-in-up">
-          ¿Qué es{" "}
-          <span className="text-green-600 hover:text-green-700 transition-colors duration-300">
-            Shopy Smart
-          </span>
-          ?
+    <section id="how-it-works" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-6">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          Cómo funciona <span className="text-blue-600">Shopy Smart</span>
         </h2>
-
-        {/* Descripción con animación */}
-        <p className="text-xl text-gray-700 mb-10 animate-fade-in-up delay-100">
-          Shopy Smart es tu asistente inteligente para compras en línea. Busca,
-          compara y encuentra los mejores productos de múltiples plataformas en
-          un solo lugar. Con la ayuda de inteligencia artificial, toma decisiones
-          más inteligentes y personalizadas.
-        </p>
-
-        {/* Icono decorativo */}
-        <div className="flex justify-center mb-8 animate-bounce-slow">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-16 w-16 text-green-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {steps.map((step, index) => (
+            <Card key={index} className="flex flex-col items-center text-center p-6 shadow-lg">
+              <CardContent className="flex flex-col items-center">
+                <div className="rounded-full bg-blue-100 text-blue-600 p-3 mb-4">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p className="text-sm text-gray-600">{step.description}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-
-       
       </div>
-    </div>
-  );
+    </section>
+  )
 }
