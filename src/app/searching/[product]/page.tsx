@@ -166,7 +166,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <div className="bg-gray-100 py-3">
         <SortBar view={view} onViewChange={setView}>
           <div className="font-bold">Products: {filterlProducts.length}</div>

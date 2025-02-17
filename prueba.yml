@@ -1,0 +1,13 @@
+name: Deploy Laravel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectar al servidor y ejecutar test
+        run: echo esto funciona bien

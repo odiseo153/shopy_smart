@@ -129,7 +129,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <div className="bg-gray-100 py-4 shadow-sm">
 
         <SortBar view={view} onViewChange={setView}>

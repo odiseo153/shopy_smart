@@ -19,7 +19,6 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <Header />
 
       <main className="  ">
         {/* Hero Section */}

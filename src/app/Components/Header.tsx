@@ -4,16 +4,16 @@ import { Bot, Menu, Search, ScanSearch } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import AuthForm from './Auth/AuthComponent';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 
 export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -22,9 +22,9 @@ export default function Header() {
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false); // Add loading state for image upload
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-
 
   const searchProduct = async () => {
     if (search.trim()) {
@@ -139,9 +139,29 @@ export default function Header() {
               <Bot className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
               Recomendaciones
             </Link>
+            <Button onClick={() => setIsAuthModalOpen(true)} className=" text-white px-4 py-2 rounded-lg shadow-lg ">
+              Get Started
+            </Button>
           </div>
         </div>
       </div>
+
+      <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Authentication</DialogTitle>
+            <DialogDescription>
+              Please login or get started to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <AuthForm />
+          <DialogFooter>
+            <Button onClick={() => setIsAuthModalOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
@@ -177,6 +197,3 @@ function CategoriesMenu() {
     </DropdownMenu>
   );
 }
-
-
-

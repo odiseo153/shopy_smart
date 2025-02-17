@@ -1,11 +1,10 @@
-name: start  # Nombre del workflow
+name: start
 
-on: push  # Se ejecuta cada vez que se hace un push
+on: push
 
 jobs:
-  test:  # Definimos un trabajo llamado "test"
-    runs-on: ubuntu-latest  # Corre en un entorno Ubuntu
-
-    steps:
-      - name: Probando el action
-        run: echo "Ejecutando CI en GitHub Actions"
+  test:
+   runs-on: ubuntu-latest
+   steps:
+     - name: probando klk
+       run: echo probando
