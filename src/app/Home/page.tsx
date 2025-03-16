@@ -2,20 +2,21 @@
 
 import Header from '../Components/Header';
 import { Carousel } from '../Components/Home/Carousel';
-import CategoriesSection from '../Components/Home/CategoriesSection';
-import RecommendedProductsSection from '../Components/Home/RecommendedProductSection';
-import PlatformsSection from '../Components/Home/PlatformsSection';
 import { Bubble } from '../Components/Bubbles/Bubble';
 import { FeatureSteps } from '@/components/blocks/feature-section';
+import RecommendedProductsSection from '../Components/Home/RecommendedProductSection';
+
+import CategoriesSection from '../Components/Home/CategoriesSection';
+import PlatformsSection from '../Components/Home/PlatformsSection';
 import { Suspense } from 'react';
-import ShopMateDescription from '../Components/Home/ShopMateDescription';
 import Hero from '../Components/Home/Hero';
 import HowItWorks from '../Components/Home/ShopMateDescription';
 import Testimonials from '../Components/Home/Testimonial';
 import Footer from '../Components/Home/Footer';
+import About from '../Components/Home/About';
 
 
-export default function Page() {
+export default function Page() { 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header j*/}
@@ -25,6 +26,12 @@ export default function Page() {
         <section>
           <Suspense fallback={<div>Loading...</div>}>
           <Hero />
+          </Suspense>
+        </section>
+
+        <section>
+          <Suspense fallback={<div>Loading...</div>}>
+          <About />
           </Suspense>
         </section>
 
