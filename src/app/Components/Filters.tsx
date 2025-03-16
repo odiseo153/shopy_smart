@@ -44,12 +44,11 @@ export function Filters({ onPlatformChange, onPriceChange, options, prices }: Fi
   };
 
   return (
-    <div className="max-w-full md:w-64 bg-white p-6 border border-gray-300 shadow-lg rounded-lg flex flex-col space-y-6">
+    <div className=" bg-white p-6 border border-gray-200 shadow-sm rounded-lg flex flex-col space-y-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Filtros</h2>
-        <Button variant="outline" size="sm" onClick={resetFilters}>
-          <TimerResetIcon className="mr-2 h-4 w-4" />
-          Resetear
+        <Button variant="outline" size="sm" onClick={resetFilters} className="flex items-center">
+          <TimerResetIcon className="mr-2 h-4 w-4" onClick={resetFilters}/>
         </Button>
       </div>
       {filterSections.map(({ title, options }) => (
@@ -59,8 +58,10 @@ export function Filters({ onPlatformChange, onPriceChange, options, prices }: Fi
             className="w-full justify-between px-3 rounded-md hover:bg-gray-100 transition"
             onClick={() => toggleSection(title)}
           >
-            <span className="text-base">{title}</span>
-            <span className="text-lg font-bold">{expandedSections.includes(title) ? "−" : "+"}</span>
+            <span className="text-base font-medium text-gray-700">{title}</span>
+            <span className="text-lg font-bold text-gray-500">
+              {expandedSections.includes(title) ? "−" : "+"}
+            </span>
           </Button>
           {expandedSections.includes(title) && (
             <RadioGroup
@@ -83,9 +84,8 @@ export function Filters({ onPlatformChange, onPriceChange, options, prices }: Fi
                     htmlFor={`${title}-${option}`}
                     className={cn(
                       "peer-checked:text-blue-600 peer-checked:font-semibold flex items-center space-x-2 text-gray-800 hover:text-blue-600 cursor-pointer rounded-md p-2",
-                      )}
+                    )}
                   >
-                    
                     <span className="text-sm capitalize">{option}</span>
                   </label>
                 </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SortBar } from "../../Components/SortBar";
 import { Filters } from "../../Components/Filters";
+import  FilterComponent  from "../../Components/FilterComponent";
 import { CardList } from "../../Components/Cards/List/CardList";
 import Header from "../../Components/Header";
 import { Product } from "@/app/Interfaces/Products";
@@ -13,6 +14,8 @@ import ComparationModal from "@/app/Components/ComparationModal";
 import { CardGridSkeleton } from "@/app/Components/skeletons/CardGridSkeleton";
 import ReactPaginate from "react-paginate";
 import { FilterSkeleton } from "@/app/Components/skeletons/FilterSkeleton";
+
+
 
 export default function Page() {
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -165,7 +168,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen w-full bg-gray-50">
       <div className="bg-gray-100 py-3">
         <SortBar view={view} onViewChange={setView}>
           <div className="font-bold">Products: {filterlProducts.length}</div>
@@ -186,12 +189,12 @@ export default function Page() {
       <div className="flex flex-col lg:flex-row">
         {products.length > 0 && (
           <>
-            <Filters
+            <FilterComponent
               onPlatformChange={onPlatatformChange}
               onPriceChange={setPriceFilter}
               options={uniqueBrands}
               prices={preciosRangos}
-            />
+              />
           </>
         )}
         {!products.length && <FilterSkeleton />}
@@ -232,23 +235,28 @@ export default function Page() {
                 )}
               </div>
               <div className="mt-8 flex justify-center">
-              <ReactPaginate
-                previousLabel={"previous"}
-                nextLabel={"next"}
-                breakLabel={"..."}
-                pageCount={Math.ceil(filterlProducts.length / itemsPerPage)}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={5}
-                onPageChange={handlePageClick}
-                containerClassName={"pagination"}
-                activeClassName={"active"}
+              <nav className="flex justify-center mt-4">
+                <ReactPaginate
+                  previousLabel={"previous"}
+                  nextLabel={"next"}
+                  breakLabel={"..."}
+                  pageCount={Math.ceil(filterlProducts.length / itemsPerPage)}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={5}
+                  onPageChange={handlePageClick}
+                  containerClassName={"pagination flex space-x-2"}
+                  pageLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
+                  previousLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
+                  nextLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
+                  activeClassName={"bg-blue-500 text-white font-medium py-2 px-2 rounded-md"}
                 />
+              </nav>
                 </div>
             </>
           )}
         </main>
       </div>
-      {selectedProducts.length > 0  &&(
+      {selectedProducts.length > 1 &&(
         <>
           <ComparationModal
             isOpen={isModalOpen}

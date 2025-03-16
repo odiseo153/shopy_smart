@@ -14,25 +14,3 @@ body {
   }
 }
 
-.pagination {
-  @apply flex justify-center list-none;
-  top: 10em;
-  padding: 0;
-}
-
-.pagination li {
-  margin: 0 5px;
-}
-
-.pagination li a {
-  @apply px-4 py-2 border border-gray-300 cursor-pointer rounded;
-  transition: background-color 0.3s ease; /* Add smooth transition */
-}
-
-.pagination li.active a {
-  @apply bg-blue-500 text-white border-blue-500;
-}
-
-.pagination li a:hover {
-  @apply bg-gray-100;
-}

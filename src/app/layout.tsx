@@ -22,7 +22,7 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) { 
+}>) {
   return (
     <html lang="en">
       <body
@@ -30,11 +30,15 @@ export default function RootLayout({
       >
         <title>Shopy Smart</title>
         <AppProvider>
-        <Header />
+          <Header />
 
-        {children}
+          {children}
         </AppProvider>
       </body>
     </html>
   );
 }
+
+
+
+

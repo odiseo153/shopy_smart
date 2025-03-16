@@ -18,14 +18,13 @@ import Footer from '../Components/Home/Footer';
 export default function Page() {
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
+      {/* Header j*/}
 
       <main className="  ">
-        {/* Hero Section */}
+        {/* Hero Sectison */}
         <section>
           <Suspense fallback={<div>Loading...</div>}>
           <Hero />
-
           </Suspense>
         </section>
 
