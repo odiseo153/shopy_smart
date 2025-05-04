@@ -46,7 +46,7 @@ export default function HowItWorks() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({
+    visible: (custom: any) => ({
       opacity: 1, 
       y: 0,
       transition: {
