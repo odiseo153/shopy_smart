@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { SortBar } from "../../Components/SortBar";
-import { Filters } from "../../Components/Filters";
 import  FilterComponent  from "../../Components/FilterComponent";
 import { CardList } from "../../Components/Cards/List/CardList";
-import Header from "../../Components/Header";
 import { Product } from "@/app/Interfaces/Products";
 import { useParams } from "next/navigation";
 import { CardGrid } from "@/app/Components/Cards/grid/CardGrid";
@@ -79,7 +77,31 @@ export default function Page() {
     fetchProducts();
   }, [query]);
 
-  const cleanPrice = (price: string = "") => parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
+  // Enhanced price cleaning function to handle various formats
+  const cleanPrice = (price: string = "") => {
+    if (!price) return 0;
+    
+    // Handle duplicated prices by taking just the first occurrence
+    if (price.split("$").length > 2) {
+      price = price.substring(0, price.indexOf("$", price.indexOf("$") + 1));
+    }
+    
+    // Handle ranges like "35$-36$" by taking the average
+    if (price.includes("-")) {
+      const [min, max] = price.split("-");
+      const cleanMin = parseFloat(min.replace(/[^0-9.]/g, "")) || 0;
+      const cleanMax = parseFloat(max.replace(/[^0-9.]/g, "")) || 0;
+      return (cleanMin + cleanMax) / 2;
+    }
+    
+    // Convert euros to dollars (approximate conversion)
+    if (price.includes("€")) {
+      return (parseFloat(price.replace(/[^0-9.]/g, "")) || 0) * 1.1; // Approximate EUR to USD conversion
+    }
+    
+    // Default case: clean up and parse
+    return parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
+  };
 
   const filterProducts = (products: Product[], filterType: string): Product[] => {
     const sortFunctions = {
@@ -93,9 +115,22 @@ export default function Page() {
   };
 
   const agruparPorRangos = (preciosArray: string[], cantidadRangos: number) => {
-    const precios = preciosArray.map(cleanPrice);
+    // Handle empty array case
+    if (preciosArray.length === 0) return [];
+    
+    const precios = preciosArray.map(cleanPrice).filter(price => price > 0);
+    
+    // If no valid prices remain after filtering
+    if (precios.length === 0) return [];
+    
     const maxPrecio = Math.max(...precios);
     const minPrecio = Math.min(...precios);
+    
+    // If min and max are the same, create at least one range
+    if (maxPrecio === minPrecio) {
+      return [`${minPrecio.toFixed(0)}-${(minPrecio + 10).toFixed(0)}`];
+    }
+    
     const rangoTamano = Math.ceil((maxPrecio - minPrecio) / cantidadRangos);
 
     return Array.from({ length: cantidadRangos }, (_, i) => {
@@ -105,25 +140,36 @@ export default function Page() {
     });
   };
 
+
+
+  // Generate price ranges from all products, not just from a single platform
   const preciosRangos = agruparPorRangos(
-    products.filter((product) => product.brand === "ebay").map((x) => x.product_price),
+    products.map((x) => x.product_price),
     6
   );
 
   const filteredProducts = () => {
-    const { min: minFilter, max: maxFilter } = priceFilter === "all"
-      ? { min: 0, max: Infinity }
-      : (() => {
-          const [min, max] = priceFilter.replace("$", "").split("-").map(cleanPrice);
-          return { min, max };
-        })();
+    // Handle price filter
+    let minFilter = 0;
+    let maxFilter = Infinity;
+    
+    if (priceFilter !== "all") {
+      try {
+        const [min, max] = priceFilter.split("-").map(p => parseFloat(p.replace(/[^0-9.]/g, "")));
+        if (!isNaN(min)) minFilter = min;
+        if (!isNaN(max)) maxFilter = max;
+      } catch (error) {
+        console.error("Error parsing price filter:", error);
+      }
+    }
 
     return products.filter((product) => {
       const productPrice = cleanPrice(product.product_price);
-      return (
-        (platformFilter === "all" || product.brand.toLowerCase() === platformFilter) &&
-        (priceFilter === "all" || (productPrice >= minFilter && productPrice <= maxFilter))
-      );
+      const matchesPlatform = platformFilter === "all" || 
+                             product.brand.toLowerCase() === platformFilter.toLowerCase();
+      const matchesPrice = productPrice >= minFilter && productPrice <= maxFilter;
+      
+      return matchesPlatform && matchesPrice;
     });
   };
 
@@ -237,18 +283,19 @@ export default function Page() {
               <div className="mt-8 flex justify-center">
               <nav className="flex justify-center mt-4">
                 <ReactPaginate
-                  previousLabel={"previous"}
-                  nextLabel={"next"}
+                  previousLabel={"Previous"}
+                  nextLabel={"Next"}
                   breakLabel={"..."}
                   pageCount={Math.ceil(filterlProducts.length / itemsPerPage)}
                   marginPagesDisplayed={2}
                   pageRangeDisplayed={5}
                   onPageChange={handlePageClick}
-                  containerClassName={"pagination flex space-x-2"}
-                  pageLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
-                  previousLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
-                  nextLinkClassName={"bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md"}
-                  activeClassName={"bg-blue-500 text-white font-medium py-2 px-2 rounded-md"}
+                  containerClassName={"pagination flex flex-wrap gap-2"}
+                  pageLinkClassName={"bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors duration-200"}
+                  previousLinkClassName={"bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors duration-200"}
+                  nextLinkClassName={"bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors duration-200"}
+                  activeClassName={"!bg-blue-600 !text-white border-blue-600"}
+                  disabledClassName={"opacity-50 cursor-not-allowed"}
                 />
               </nav>
                 </div>

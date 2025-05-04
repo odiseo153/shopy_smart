@@ -53,22 +53,72 @@ export default function FilterComponent({ onPlatformChange, onPriceChange, optio
   }
 
   const handlePlatformChange = (platformId: string) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(platformId) ? prev.filter((id) => id !== platformId) : [...prev, platformId]
-    )
-    onPlatformChange(platformId);
+    if (platformId === "all") {
+      // If "all" is selected, clear other selections
+      setSelectedPlatforms(["all"]);
+      onPlatformChange("all");
+    } else {
+      // If a specific platform is selected, remove "all" from the selections
+      setSelectedPlatforms(prev => {
+        const newSelection = prev.includes(platformId) 
+          ? prev.filter(id => id !== platformId) 
+          : [...prev.filter(id => id !== "all"), platformId];
+        
+        // If no platforms are selected, default to "all"
+        if (newSelection.length === 0) {
+          onPlatformChange("all");
+          return ["all"];
+        }
+        
+        onPlatformChange(platformId);
+        return newSelection;
+      });
+    }
   }
 
   const handlePriceChange = (price: string) => {
-    setSelectedPrice((prev) =>
-      prev.includes(price) ? prev.filter((id) => id !== price) : [...prev, price]
-    )
-    onPriceChange(price);
+    if (price === "all") {
+      // If "all" is selected, clear other selections
+      setSelectedPrice(["all"]);
+      onPriceChange("all");
+    } else {
+      // If a specific price range is selected
+      setSelectedPrice(prev => {
+        const newSelection = prev.includes(price)
+          ? prev.filter(id => id !== price)
+          : [...prev.filter(id => id !== "all"), price];
+        
+        // If no price ranges are selected, default to "all"
+        if (newSelection.length === 0) {
+          onPriceChange("all");
+          return ["all"];
+        }
+        
+        onPriceChange(price);
+        return newSelection;
+      });
+    }
   }
 
   const applyFilters = () => {
-    console.log("Applied filters:", { priceRange, selectedPlatforms })
-    setIsFilterOpen(false)
+    // Apply price range filter
+    const priceFilterValue = `${minPrice}-${maxPrice}`;
+    onPriceChange(priceFilterValue);
+    
+    // Apply platform filter
+    if (selectedPlatforms.length === 0 || selectedPlatforms.includes("all")) {
+      onPlatformChange("all");
+    } else {
+      // If there's only one platform selected, use that one
+      if (selectedPlatforms.length === 1) {
+        onPlatformChange(selectedPlatforms[0]);
+      } else {
+        // This is simplistic - in a real app you might want to handle multiple platforms differently
+        onPlatformChange(selectedPlatforms[0]);
+      }
+    }
+    
+    setIsFilterOpen(false);
   }
 
   const resetFilters = () => {
