@@ -42,11 +42,6 @@ class CategoryHandler {
       ebay: this.productHandler.getEbayProducts.bind(this.productHandler),
       walmart: this.productHandler.getWalmartProducts.bind(this.productHandler),
       aliexpress: this.productHandler.getAliExpressProducts.bind(this.productHandler),
-      nike: this.productHandler.getNikeProducts.bind(this.productHandler),
-      asos: this.productHandler.getAsosProducts.bind(this.productHandler),
-      bestbuy: this.productHandler.getBestBuyProducts.bind(this.productHandler),
-      romwe: this.productHandler.getProductsRomwe.bind(this.productHandler),
-      patagonia: this.productHandler.getPatagoniaProducts.bind(this.productHandler)
     };
   
     const results = await Promise.allSettled(
