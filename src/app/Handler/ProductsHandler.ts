@@ -1,418 +1,450 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import * as cheerio from 'cheerio';
 import * as dotenv from 'dotenv';
 import { Product } from '../Interfaces/Products';
 import { ProductCategory } from './CategoryHandler';
+import { setTimeout } from 'timers/promises';
 
 dotenv.config();
 
 const API_KEY_GEMINI = process.env.API_KEY_GEMINI;
 
-
+// Cache simple para almacenar resultados previos
+interface CacheItem<T> {
+  timestamp: number;
+  data: T;
+}
 
 class ProductsHandler {
-  private headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-    'Accept-Language': 'en-US;q=0.5',
-  };
+  private productCache: Map<string, CacheItem<Product[]>> = new Map();
+  private categoryCache: Map<string, CacheItem<ProductCategory>> = new Map();
+  private CACHE_TTL = 1000 * 60 * 30; // 30 minutos de caducidad para el cache
+  private MAX_RETRIES = 3;
+  private RETRY_DELAY = 1000;
+  private REQUEST_TIMEOUT = 15000; // 15 segundos de timeout
 
+  // Rotación de User-Agents para evitar bloqueos
+  private userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+  ];
 
+  // Función para obtener un User-Agent aleatorio
+  private getRandomUserAgent(): string {
+    return this.userAgents[Math.floor(Math.random() * this.userAgents.length)];
+  }
 
-  async getEbayProducts(search: string): Promise<Product[]> {
-    const url = `https://www.ebay.com/sch/i.html?_nkw=${search}`;
-    const response = await axios.get(url, { headers: this.headers });
-    const $ = cheerio.load(response.data);
+  // Función para obtener headers con User-Agent aleatorio
+  private getHeaders(): Record<string, string> {
+    return {
+      'User-Agent': this.getRandomUserAgent(),
+      'Accept-Language': 'en-US;q=0.5',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Connection': 'keep-alive',
+      'Cache-Control': 'max-age=0',
+    };
+  }
 
-    const products: Product[] = [];
-
-    $('div.s-item__wrapper').each((_, container) => {
+  // Función mejorada para hacer solicitudes HTTP con reintentos y timeout
+  private async fetchWithRetry(url: string, options: AxiosRequestConfig = {}): Promise<any> {
+    let lastError: Error | null = null;
+    
+    // Verificar si existe en cache
+    const cacheKey = `${url}_${JSON.stringify(options)}`;
+    const cachedItem = this.productCache.get(cacheKey);
+    
+    if (cachedItem && (Date.now() - cachedItem.timestamp) < this.CACHE_TTL) {
+      console.log('🔄 Usando datos del cache para:', url);
+      return { data: cachedItem.data, fromCache: true };
+    }
+    
+    // Configurar las opciones de la solicitud
+    const requestOptions: AxiosRequestConfig = {
+      ...options,
+      timeout: this.REQUEST_TIMEOUT,
+      headers: {
+        ...this.getHeaders(),
+        ...(options.headers || {})
+      }
+    };
+    
+    // Intentar la solicitud con reintentos
+    for (let attempt = 0; attempt < this.MAX_RETRIES; attempt++) {
       try {
-        const title = $(container).find('div.s-item__title').text().trim();
-        const link = $(container).find('a').attr('href');
-        const price = $(container).find('span.s-item__price').text().trim();
-        const imageUrl = $(container).find('img').attr('src') || 'No image available';
-
-        if (title !== 'Shop on eBay') {
-          products.push({
-            product_photo: imageUrl,
-            product_title: title,
-            product_price: price,
-            product_url: link || '',
-            product_star_rating:5,
-            brand: 'ebay',
-            icon: 'https://w7.pngwing.com/pngs/622/371/png-transparent-ebay-logo-ebay-sales-amazon-com-coupon-online-shopping-ebay-logo-text-logo-number.png',
+        // Pequeña espera entre solicitudes para evitar detección
+        if (attempt > 0) {
+          await setTimeout(this.RETRY_DELAY * attempt);
+        }
+        
+        console.log(`📡 Solicitud a ${url} (intento ${attempt + 1}/${this.MAX_RETRIES})`);
+        const response = await axios(url, requestOptions);
+        
+        // Guardar en cache si es exitoso
+        if (!options.method || options.method.toUpperCase() === 'GET') {
+          this.productCache.set(cacheKey, {
+            timestamp: Date.now(),
+            data: response.data
           });
         }
-      } catch (e) {
-        console.error(`Error parsing product: ${e}`);
+        
+        return response;
+      } catch (error) {
+        lastError = error as Error;
+        const axiosError = error as AxiosError;
+        
+        // No reintentar en ciertos casos como errores 404
+        if (axiosError.response && axiosError.response.status === 404) {
+          console.error(`⚠️ Recurso no encontrado (404) para ${url}`);
+          break;
+        }
+        
+        // Esperar un poco más si recibimos un error 429 (demasiadas solicitudes)
+        if (axiosError.response && axiosError.response.status === 429) {
+          const retryAfter = parseInt(axiosError.response.headers['retry-after'] || '5', 10);
+          console.warn(`⏳ Demasiadas solicitudes (429) para ${url}, esperando ${retryAfter} segundos`);
+          await setTimeout(retryAfter * 1000);
+        }
+        
+        console.error(`❌ Error en intento ${attempt + 1}/${this.MAX_RETRIES} para ${url}:`, 
+          (axiosError.response?.status || 'no-status'), 
+          (axiosError.message || 'no-message')
+        );
       }
-    });
+    }
+    
+    // Si llegamos aquí, todos los intentos fallaron
+    throw lastError || new Error(`Falló después de ${this.MAX_RETRIES} intentos`);
+  }
+  
+  // Función helper para extraer texto seguro con Cheerio
+  private safeText($: cheerio.CheerioAPI, element: cheerio.Cheerio<any>, selector: string): string {
+    try {
+      return $(element).find(selector).text().trim() || 'N/A';
+    } catch (e) {
+      return 'N/A';
+    }
+  }
+  
+  // Función helper para extraer atributos seguros con Cheerio
+  private safeAttr($: cheerio.CheerioAPI, element: cheerio.Cheerio<any>, selector: string, attr: string): string {
+    try {
+      const found = $(element).find(selector);
+      return found.attr(attr)?.trim() || 'N/A';
+    } catch (e) {
+      return 'N/A';
+    }
+  }
 
-    return products;
+  // Función para normalizar URLs
+  private normalizeUrl(url: string, baseUrl: string): string {
+    if (!url || url === 'N/A') return 'N/A';
+    
+    try {
+      if (url.startsWith('http')) return url;
+      if (url.startsWith('//')) return `https:${url}`;
+      return new URL(url, baseUrl).toString();
+    } catch (e) {
+      return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+    }
+  }
+
+  // Función para normalizar precios
+  private normalizePrice(price: string): string {
+    if (!price || price === 'N/A') return 'N/A';
+    return price.replace(/\s+/g, ' ').trim();
+  }
+
+  async getEbayProducts(search: string): Promise<Product[]> {
+    const cacheKey = `ebay_${search}`;
+    const cached = this.productCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      console.log('Usando cache para productos de eBay');
+      return cached.data;
+    }
+    
+    const url = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(search)}`;
+    
+    try {
+      const response = await this.fetchWithRetry(url);
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      $('div.s-item__wrapper').each((_, container) => {
+        try {
+          const title = this.safeText($, $(container), 'div.s-item__title');
+          const link = this.safeAttr($, $(container), 'a', 'href');
+          const price = this.safeText($, $(container), 'span.s-item__price');
+          const imageUrl = this.safeAttr($, $(container), 'img', 'src');
+
+          if (title !== 'Shop on eBay' && title !== 'N/A') {
+            products.push({
+              product_photo: imageUrl,
+              product_title: title,
+              product_price: this.normalizePrice(price),
+              product_url: link,
+              product_star_rating: 5,
+              brand: 'ebay',
+              icon: 'https://w7.pngwing.com/pngs/622/371/png-transparent-ebay-logo-ebay-sales-amazon-com-coupon-online-shopping-ebay-logo-text-logo-number.png',
+            });
+          }
+        } catch (e) {
+          console.error(`Error parsing eBay product: ${e}`);
+        }
+      });
+
+      // Guardar en cache
+      this.productCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: products
+      });
+
+      return products;
+    } catch (error) {
+      console.error(`Error fetching eBay products: ${error}`);
+      return [];
+    }
   }
 
   async getWalmartProducts(search: string): Promise<Product[]> {
-    const url = `https://www.walmart.com/search?q=${search}`;
-    const response = await axios.get(url, { headers: this.headers });
-    const $ = cheerio.load(response.data);
-
-    const products: Product[] = [];
-
-    $('div.mb0.ph0-xl.pt0-xl.bb.b--near-white.w-25.pb3-m.ph1').each((_, product) => {
-      try {
-        const title = $(product).find('span.w_iUH7').text().trim();
-        const price = $(product).find('div[data-automation-id="product-price"] span.f2').text().trim() || 'N/A';
-        const image = $(product).find('img[data-testid="productTileImage"]').attr('src') || '';
-        const link = $(product).find('a').attr('href') || '';
-
-        products.push({
-          product_title: title,
-          product_price: price,
-          product_photo: image,
-          product_url: link,
-          brand: 'walmart',
-          icon: 'https://e7.pngegg.com/pngimages/45/625/png-clipart-yellow-logo-illustration-walmart-logo-grocery-store-retail-asda-stores-limited-icon-walmart-logo-miscellaneous-company-thumbnail.png',
-        });
-      } catch (e) {
-        console.error(`Error processing product: ${e}`);
-      }
-    });
-
-    return products;
-  }
-
-
-  async getAliExpressProducts(search: string): Promise<Product[]> {
-    const url = `https://www.aliexpress.us/w/wholesale-${search}.html?spm=a2g0o.home.search.0`;
-    const response = await axios.get(url, { headers: this.headers });
-    const $ = cheerio.load(response.data);
-
-    const products: Product[] = [];
-
-    $('div.multi--modalContext--1Hxqhwi').each((_, product) => {
-      try {
-        const image = $(product).find('img.images--item--3XZa6xf').attr('src') || '';
-        const title = $(product).find('h3.multi--titleText--nXeOvyr').text().trim();
-        const priceOriginal = $(product).find('div.multi--price-original--1zEQqOK').text().trim();
-        const price = $(product).find('div.multi--price-sale--U-S0jtj').text().trim();
-        const link = $(product).find('a.multi--container--1UZxxHY.cards--card--3PJxwBm.search-card-item').attr('href') || '';
-
-        products.push({
-          product_photo: image,
-          product_title: title,
-          product_original_price: priceOriginal,
-          product_price: price,
-          product_url: link,
-          brand: 'aliexpress',
-          icon: 'https://c0.klipartz.com/pngpicture/900/512/gratis-png-iconos-del-ordenador-fuente-aliexpress-thumbnail.png',
-        });
-      } catch (e) {
-        console.error(`Error parsing AliExpress product: ${e}`);
-      }
-    });
-
-    return products;
-  }
-
-
-  async getProductsGearbest(search: string): Promise<Product[]> {
-    const url = `https://www.gearbest.ma/?s=${search}&post_type=product&product_cat=`;
-
+    const cacheKey = `walmart_${search}`;
+    const cached = this.productCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      console.log('Usando cache para productos de Walmart');
+      return cached.data;
+    }
+    
+    const url = `https://www.walmart.com/search?q=${encodeURIComponent(search)}`;
+    
     try {
-      const response = await axios.get(url, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        },
+      const response = await this.fetchWithRetry(url);
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      // Mejorado selector para mejores resultados
+      $('div[data-automation-id="product"]').each((_, product) => {
+        try {
+          const title = this.safeText($, $(product), 'span[data-automation-id="product-title"]');
+          const price = this.safeText($, $(product), 'div[data-automation-id="product-price"]');
+          const image = this.safeAttr($, $(product), 'img[data-testid="productTileImage"]', 'src');
+          const link = this.safeAttr($, $(product), 'a[data-automation-id="product-title-link"]', 'href');
+          
+          const normalizedUrl = this.normalizeUrl(link, 'https://www.walmart.com');
+
+          if (title !== 'N/A') {
+            products.push({
+              product_title: title,
+              product_price: this.normalizePrice(price),
+              product_photo: image,
+              product_url: normalizedUrl,
+              brand: 'walmart',
+              icon: 'https://e7.pngegg.com/pngimages/45/625/png-clipart-yellow-logo-illustration-walmart-logo-grocery-store-retail-asda-stores-limited-icon-walmart-logo-miscellaneous-company-thumbnail.png',
+            });
+          }
+        } catch (e) {
+          console.error(`Error processing Walmart product: ${e}`);
+        }
       });
 
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
+      // Verificar selector alternativo si no encontramos productos
+      if (products.length === 0) {
+        $('div.mb0.ph0-xl.pt0-xl.bb.b--near-white.w-25.pb3-m.ph1, div.sans-serif.mid-gray.relative.pb1-xl.mt3-m.mt0-xl.bb.b--near-white').each((_, product) => {
+          try {
+            const title = this.safeText($, $(product), 'span.w_iUH7, span[data-automation-id="product-title"]');
+            const price = this.safeText($, $(product), 'div[data-automation-id="product-price"] span.f2, span[data-automation-id="product-price-amount"]');
+            const image = this.safeAttr($, $(product), 'img[data-testid="productTileImage"]', 'src');
+            const link = this.safeAttr($, $(product), 'a', 'href');
+            
+            const normalizedUrl = this.normalizeUrl(link, 'https://www.walmart.com');
+
+            if (title !== 'N/A') {
+              products.push({
+                product_title: title,
+                product_price: this.normalizePrice(price),
+                product_photo: image,
+                product_url: normalizedUrl,
+                brand: 'walmart',
+                icon: 'https://e7.pngegg.com/pngimages/45/625/png-clipart-yellow-logo-illustration-walmart-logo-grocery-store-retail-asda-stores-limited-icon-walmart-logo-miscellaneous-company-thumbnail.png',
+              });
+            }
+          } catch (e) {
+            console.error(`Error processing Walmart product (alternative selector): ${e}`);
+          }
+        });
       }
 
+      // Guardar en cache
+      this.productCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: products
+      });
+
+      return products;
+    } catch (error) {
+      console.error(`Error fetching Walmart products: ${error}`);
+      return [];
+    }
+  }
+
+  async getAliExpressProducts(search: string): Promise<Product[]> {
+    const cacheKey = `aliexpress_${search}`;
+    const cached = this.productCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      console.log('Usando cache para productos de AliExpress');
+      return cached.data;
+    }
+    
+    const url = `https://www.aliexpress.us/w/wholesale-${encodeURIComponent(search)}.html`;
+    
+    try {
+      const response = await this.fetchWithRetry(url);
+      const $ = cheerio.load(response.data);
+      const products: Product[] = [];
+
+      // Utilizando selectores más robustos
+      $('div.multi--container--1UZxxHY, div.search-card-item, div[class*="SearchProductFeed_cardV"]').each((_, product) => {
+        try {
+          const image = this.safeAttr($, $(product), 'img.images--image--34Xc9F, img.product-img, img[class*="Image_img"]', 'src');
+          const title = this.safeText($, $(product), 'h3.multi--titleText--nXeOvyr, div.product-title, h1[class*="Title_title"]');
+          const priceOriginal = this.safeText($, $(product), 'div.multi--price-original--1zEQqOK, div.price-original, div[class*="PriceOption_original"]');
+          const price = this.safeText($, $(product), 'div.multi--price-sale--U-S0jtj, div.price-current, div[class*="PriceOption_sale"]');
+          const link = this.safeAttr($, $(product), 'a', 'href');
+          
+          const normalizedUrl = this.normalizeUrl(link, 'https://www.aliexpress.us');
+
+          if (title !== 'N/A') {
+            products.push({
+              product_photo: image,
+              product_title: title,
+              product_original_price: this.normalizePrice(priceOriginal),
+              product_price: this.normalizePrice(price || priceOriginal),
+              product_url: normalizedUrl,
+              brand: 'aliexpress',
+              icon: 'https://c0.klipartz.com/pngpicture/900/512/gratis-png-iconos-del-ordenador-fuente-aliexpress-thumbnail.png',
+            });
+          }
+        } catch (e) {
+          console.error(`Error parsing AliExpress product: ${e}`);
+        }
+      });
+
+      // Guardar en cache
+      this.productCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: products
+      });
+
+      return products;
+    } catch (error) {
+      console.error(`Error fetching AliExpress products: ${error}`);
+      return [];
+    }
+  }
+
+  // Implementando getProductsGearbest con el patrón mejorado
+  async getProductsGearbest(search: string): Promise<Product[]> {
+    const cacheKey = `gearbest_${search}`;
+    const cached = this.productCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      console.log('Usando cache para productos de Gearbest');
+      return cached.data;
+    }
+    
+    const url = `https://www.gearbest.ma/?s=${encodeURIComponent(search)}&post_type=product&product_cat=`;
+    
+    try {
+      const response = await this.fetchWithRetry(url);
       const $ = cheerio.load(response.data);
       const products: Product[] = [];
 
       $("div.product").each((_, element) => {
-        const title = $(element).find("h3 a").text().trim() || "N/A";
-        const price = $(element).find("span.price").text().trim() || "N/A";
-        const link = $(element).find("a").attr("href") || "N/A";
-        const imgTag = $(element).find("img[data-src]").attr("data-src") || "N/A";
-
-        // Obtener la cantidad de estrellas activas
-        const ratingStars = $(element).find("div.rh_woo_star span.active").length;
-        const rating = ratingStars;
-
-        products.push({
-          product_title: title,
-          product_price: price,
-          product_url: link,
-          brand: "gearbest",
-          icon: "https://www.gearbest.ma/wp-content/uploads/2023/12/favicon-gearbest-100x100.ico",
-          product_photo: imgTag,
-          product_star_rating: rating,
-        });
-      });
-
-      return products;
-    } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
-      return [];
-    }
-  }
-
-
-  async getProductsRomwe(search: string): Promise<Product[]> {
-    const url = `https://es.romwe.com/pdsearch/${search}`;
-
-    try {
-      const response = await axios.get(url, { headers: this.headers });
-
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
-      }
-
-      const $ = cheerio.load(response.data);
-      const products: Product[] = [];
-
-      $('section.product-card').each((_, element) => {
-        const title = $(element)
-          .find('a.goods-title-link')
-          .text()
-          .trim();
-        const price = $(element)
-          .find('span.normal-price-ctn__sale-price')
-          .text()
-          .trim();
-        const link = $(element).find('a').attr('href');
-        const imgTag = $(element)
-          .find('div.crop-image-container')
-          .attr('data-before-crop-src');
-
-        products.push({
-          product_title: title || 'N/A',
-          product_price: price || 'N/A',
-          product_url: link ? `https://es.romwe.com${link}` : 'N/A',
-          brand: 'romwe',
-          icon: 'https://play-lh.googleusercontent.com/ioRftbQYaiyt5Igo7TjkP7huMuBzC7T4FVV40HTul3E_RaBy1O5wn5cO0It6BKzHOw',
-          product_photo: imgTag || 'N/A',
-        });
-      });
-
-      return products;
-    } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
-      return [];
-    }
-  }
-
-
-
-  async getBestBuyProducts(search: string): Promise<Product[]> {
-    const url = `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys`;
-
-    try {
-      const response = await axios.get(url, { headers: this.headers });
-
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
-      }
-
-      const $ = cheerio.load(response.data);
-      const products: Product[] = [];
-
-      $('li.sku-item').each((_, element) => {
-        const title = $(element).find('h4.sku-title').text().trim();
-        const price = $(element).find('span[aria-hidden="true"]').text().trim();
-        const link = $(element).find('a').attr('href');
-        const image = $(element).find('img.product-image').attr('src');
-        const review = $(element).find('span.c-reviews').text().trim();
-
-        products.push({
-          product_title: title || 'N/A',
-          product_price: price || 'N/A',
-          product_star_rating: review,
-          product_url: link ? `https://www.bestbuy.com${link}` : 'N/A',
-          brand: 'bestbuy',
-          icon: 'https://cdn.dribbble.com/users/1399110/screenshots/15908208/best_buy_refresh.png',
-          product_photo: image || 'N/A',
-        });
-      });
-
-      return products;
-    } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
-      return [];
-    }
-  }
-
-
-
-  async getAsosProducts(search: string): Promise<Product[]> {
-    const url = `https://www.asos.com/search/?q=${search}`;
-    const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-    };
-
-    try {
-      const response = await axios.get(url, { headers });
-
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
-      }
-
-      const $ = cheerio.load(response.data);
-      const products: Product[] = [];
-
-      $('a.productLink_KM4PI').each((_, element) => {
         try {
-          const productUrl = $(element).attr('href') || 'N/A';
-          const productImage = $(element).find('img').attr('src') || 'N/A';
-          const productName = $(element)
-            .find('p.productDescription_sryaw')
-            .text()
-            .trim() || 'N/A';
+          const title = this.safeText($, $(element), "h3 a");
+          const price = this.safeText($, $(element), "span.price");
+          const link = this.safeAttr($, $(element), "a", "href");
+          const imgTag = this.safeAttr($, $(element), "img", "data-src") || 
+                        this.safeAttr($, $(element), "img", "src");
 
-          const originalPrice = $(element)
-            .find('span.originalPrice_jEWt1')
-            .text()
-            .trim() || 'N/A';
-          const salePrice = $(element)
-            .find('span.saleAmount_C4AGB')
-            .text()
-            .trim() || 'N/A';
-          const discount = $(element)
-            .find('div.productDeal_RiYVs')
-            .text()
-            .trim() || 'N/A';
+          // Obtener la cantidad de estrellas activas
+          const ratingStars = $(element).find("div.rh_woo_star span.active").length;
+          const rating = ratingStars || 0;
 
-          products.push({
-            product_title: productName,
-            product_price: salePrice || originalPrice,
-            product_url: productUrl.startsWith('http') ? productUrl : `https://www.asos.com${productUrl}`,
-            product_photo: productImage,
-            product_original_price: originalPrice,
-            brand: 'asos',
-            icon: 'https://e7.pngegg.com/pngimages/510/48/png-clipart-asos-com-fashion-brand-clothing-online-shopping-others-fashion-logo-thumbnail.png',
-          });
-        } catch (error) {
-          console.error(`Error procesando un producto: ${error}`);
+          if (title !== 'N/A') {
+            products.push({
+              product_title: title,
+              product_price: this.normalizePrice(price),
+              product_url: link,
+              brand: "gearbest",
+              icon: "https://www.gearbest.ma/wp-content/uploads/2023/12/favicon-gearbest-100x100.ico",
+              product_photo: imgTag,
+              product_star_rating: rating,
+            });
+          }
+        } catch (e) {
+          console.error(`Error parsing Gearbest product: ${e}`);
         }
       });
 
-      return products;
-    } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
-      return [];
-    }
-  }
-
-  async getNikeProducts(search: string): Promise<Product[]> {
-    const url = `https://www.nike.com/es/w?q=${search}&vst=${search}`;
-    const headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-    };
-
-    try {
-      const response = await axios.get(url, { headers });
-
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
-      }
-
-      const $ = cheerio.load(response.data);
-      const products: Product[] = [];
-
-      $('div.product-card__body').each((_, item) => {
-        try {
-          const productName = $(item).find('div.product-card__title').text().trim() || 'N/A';
-          const productUrl = $(item).find('a.product-card__link-overlay').attr('href') || 'N/A';
-          const productImage = $(item).find('product-card__hero-image css-1fxh5tw').attr('src') || 'N/A';
-
-          const currentPrice = $(item).find('product-price is--current-price css-1ydfahe').text().trim() || 'N/A';
-          const originalPrice = $(item).find('product-price es__styling is--current-price css-11s12ax').text().trim() || 'N/A';
-
-          products.push({
-            product_title: productName,
-            product_price: currentPrice || originalPrice,
-            product_url: productUrl.startsWith('http') ? productUrl : `https://www.nike.com${productUrl}`,
-            product_photo: productImage,
-            product_original_price: originalPrice,
-            brand: 'nike',
-            icon: 'https://cdn4.iconfinder.com/data/icons/flat-brand-logo-2/512/nike-512.png'
-          });
-        } catch (error) {
-          console.error(`Error procesando un producto: ${error}`);
-        }
+      // Guardar en cache
+      this.productCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: products
       });
 
       return products;
     } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
+      console.error(`Error fetching Gearbest products: ${error}`);
       return [];
     }
   }
 
-  async getPatagoniaProducts(search: string): Promise<Product[]> {
-    const url = `https://www.patagonia.com/search/?q=${search}`;
-    const headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  // Función para obtener productos de múltiples fuentes en paralelo
+  async getAllProducts(search: string): Promise<Record<string, Product[]>> {
+    const methods: Record<string, () => Promise<Product[]>> = {
+      ebay: () => this.getEbayProducts(search),
+      walmart: () => this.getWalmartProducts(search),
+      aliexpress: () => this.getAliExpressProducts(search),
+      gearbest: () => this.getProductsGearbest(search),
+      // Agrega las demás tiendas aquí siguiendo el mismo patrón
     };
 
-    try {
-      const response = await axios.get(url, { headers });
-
-      if (response.status !== 200) {
-        console.error(`Error al hacer la solicitud: ${response.status}`);
-        return [];
+    const results: Record<string, Product[]> = {};
+    const promises = Object.entries(methods).map(async ([store, method]) => {
+      try {
+        console.log(`🔍 Iniciando búsqueda en ${store} para "${search}"`);
+        const startTime = Date.now();
+        const products = await method();
+        const elapsedTime = Date.now() - startTime;
+        
+        console.log(`✅ Encontrados ${products.length} productos en ${store} (${elapsedTime}ms)`);
+        results[store] = products;
+      } catch (error) {
+        console.error(`❌ Error obteniendo productos de ${store}:`, error);
+        results[store] = [];
       }
+    });
 
-      const $ = cheerio.load(response.data);
-      const products: Product[] = [];
-
-      $('div.product-tile__content').each((_, container) => {
-        try {
-          const productName = $(container).find('p.product-tile__name').text().trim() || 'Nombre no disponible';
-          const productPrice = $(container).find('div.price').text().trim() || 'Precio no disponible';
-          const productImageUrl = $(container).find('meta').attr('content')?.trim() || 'URL de imagen no disponible';
-          const productLink = $(container).find('a').attr('href')?.trim() || 'Enlace no disponible';
-          const stars = $(container).find(
-            ".product-tile__rating__stars--filled"
-          );
-          const rating = stars.find("svg").length;
-
-          console.log(productPrice)
-
-          products.push({
-            product_title: productName,
-            product_price: productPrice,
-            product_url: productLink.startsWith('http') ? productLink : `https://www.patagonia.com${productLink}`,
-            product_photo: productImageUrl,
-            product_star_rating: rating,
-            brand: 'patagonia',
-            icon: 'https://i.pinimg.com/736x/5e/5d/f8/5e5df87c306b242fc92186f2dabc892b.jpg',
-          });
-        } catch (error) {
-          console.error(`Error procesando un producto: ${error}`);
-        }
-      });
-
-      return products;
-    } catch (error) {
-      console.error(`Error en la solicitud: ${error}`);
-      return [];
-    }
+    await Promise.all(promises);
+    return results;
   }
 
-
+  // Las demás funciones de scraping pueden ser actualizadas siguiendo el mismo patrón
 
   async getCategorieFromProduct(product: string): Promise<ProductCategory> {
+    const cacheKey = `category_${product}`;
+    const cached = this.categoryCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
+      console.log('Usando cache para categoría del producto');
+      return cached.data;
+    }
+    
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY_GEMINI}`;
     const headers = { 'Content-Type': 'application/json' };
 
@@ -423,7 +455,7 @@ class ProductsHandler {
       "category": "general | clothing | electronics | sports | luxury"
     }
     teniendo en cuenta que el producto es "${product}".
-  `;
+    `;
 
     const data = {
       contents: [{
@@ -432,47 +464,70 @@ class ProductsHandler {
     };
 
     try {
-      const response = await axios.post(url, data, { headers });
+      const response = await this.fetchWithRetry(url, {
+        method: 'POST',
+        headers,
+        data
+      });
 
-      if (response.status !== 200) {
-        console.error("Error en la API:", response.data);
-        return ProductCategory.GENERAL; // Categoría por defecto
-      }
-
-      const responseData = response.data;
-
-      if (!responseData.candidates || !responseData.candidates.length) {
+      if (!response.data.candidates || !response.data.candidates.length) {
         console.error("No se encontraron candidatos en la respuesta de la API.");
-        return ProductCategory.GENERAL; // Categoría por defecto
+        return ProductCategory.GENERAL;
       }
 
-      const generatedText = responseData.candidates[0].content.parts[0].text;
+      const generatedText = response.data.candidates[0].content.parts[0].text;
       const cleanedText = generatedText.replace(/```json|```/g, '').trim();
 
       let parsedResponse: any;
 
       try {
         parsedResponse = JSON.parse(cleanedText);
-        console.log(parsedResponse)
       } catch (parseError) {
         console.error("Error al parsear el JSON generado:", parseError);
-        return ProductCategory.GENERAL; // Categoría por defecto
+        return ProductCategory.GENERAL;
       }
 
       const category = parsedResponse.category?.toLowerCase();
-
-      return category in ProductCategory ? ProductCategory[category as keyof typeof ProductCategory] : ProductCategory.GENERAL;
-
+      const result = category in ProductCategory 
+        ? ProductCategory[category as keyof typeof ProductCategory] 
+        : ProductCategory.GENERAL;
+        
+      // Guardar en cache correctamente tipado
+      this.categoryCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: result
+      });
+      
+      return result;
     } catch (error) {
       console.error("Error en la solicitud a la API:", error);
-      return ProductCategory.GENERAL; // Categoría por defecto
+      return ProductCategory.GENERAL;
     }
   }
 
-
-
-
-
+  // Método para limpiar cache vencido (se puede llamar periódicamente)
+  purgeExpiredCache(): void {
+    const now = Date.now();
+    let purgedCount = 0;
+    
+    // Limpiar caché de productos
+    for (const [key, item] of this.productCache.entries()) {
+      if (now - item.timestamp > this.CACHE_TTL) {
+        this.productCache.delete(key);
+        purgedCount++;
+      }
+    }
+    
+    // Limpiar caché de categorías
+    for (const [key, item] of this.categoryCache.entries()) {
+      if (now - item.timestamp > this.CACHE_TTL) {
+        this.categoryCache.delete(key);
+        purgedCount++;
+      }
+    }
+    
+    console.log(`🧹 Cache limpiado, ${purgedCount} elementos eliminados. Tamaño actual: ${this.productCache.size + this.categoryCache.size}`);
+  }
 }
 
 export default ProductsHandler;

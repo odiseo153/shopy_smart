@@ -15,6 +15,7 @@ interface ProductProps {
 }
 
 export const CardGrid: React.FC<ProductProps> = ({ product, isSelected, onSelect }) => {
+  console.log(product)
   return (
     <Card className="max-w-sm shadow-md transition-transform duration-300 hover:scale-105">
       <CardHeader className="flex flex-col items-start gap-2">
